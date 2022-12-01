@@ -1,0 +1,224 @@
+body {
+    background-color: #111111;
+    color: #111111;
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 400;
+}
+
+/* Font weights */
+
+.fw-400 {
+    font-weight: 400;
+}
+
+.fw-500 {
+    font-weight: 500;
+}
+
+.fw-600 {
+    font-weight: 600;
+}
+
+.fw-700 {
+    font-weight: 700;
+}
+
+/* Logo */
+
+.logo {
+    height: 3.75rem;
+    padding: 5px 0;
+}
+
+@media (max-width: 1023px) {
+    .logo {
+        height: 3rem;
+        padding: 0;
+    }
+}
+
+@media (max-width: 639px) {
+    .logo {
+        height: 3rem;
+    }
+}
+
+/* Panel Class */
+/* Class which is applied when the side panel is opened on the projects page */
+
+.noscroll {
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.html-panel .content, .html-panel .content header {
+    color: white;
+    background-color: #111;
+}
+
+.html-panel .panel {
+    overflow-y: auto;
+    width: 100%;
+    opacity: 1;
+    /*cursor: default;*/
+    transform: none;
+}
+
+.html-panel .projects-list img {
+    filter: grayscale(1);
+    opacity: 0.75;
+}
+
+.panel {
+    opacity: 0;
+    width: 0;
+    transition: transform 300ms ease, -webkit-transform 300ms ease;
+    transform: translateX(70px);
+}
+
+.panel header {
+    display: none;
+}
+
+.html-panel .panel header {
+    display: block;
+}
+
+.html-panel .panel__container {
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 10;
+    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.image-square {
+    padding-bottom: 100% !important;
+}
+
+.blur-up {
+    opacity: 0;
+    transition: opacity 600ms ease, -webkit-filter 600ms ease;
+}
+
+.blur-up.lazyloaded {
+    opacity: 1;
+}
+
+.article-content img {
+    object-fit: cover;
+    width: 100%;
+}
+
+.article-content .img-container {
+    padding-bottom: 56.228%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+}
+
+.object-position-top {
+    object-position: center top;
+}
+
+.object-position-center {
+    object-position: center center;
+}
+
+.object-position-bottom {
+    object-position: center bottom;
+}
+
+.bg-position-top {
+    background-position: center top;
+}
+
+.bg-position-center {
+    background-position: center center;
+}
+
+.bg-position-bottom {
+    background-position: center bottom;
+}
+
+@media (min-width: 1000px) {
+    .article-content .img-container {
+        padding-bottom: 40%;
+        height: 615px;
+    }
+
+    .article-content img {
+        height: 615px;
+    }
+}
+
+@media (max-width: 	1279px) {
+    .html-panel .content {
+        display: none;
+    }
+
+    .panel {
+        opacity: 0;
+        width: 0;
+        transition: none;
+        transform: none;
+    }
+}
+
+.html-panel .panel header {
+    min-width: calc(1760px - 14rem);
+}
+
+.html-panel .panel {
+    padding-top: 68px;
+}
+
+.max-w-screen-3xl {
+    max-width: 1760px;
+}
+
+@media (max-width: 	1535px) {
+    .html-panel .panel header {
+        min-width: calc(1536px - 8rem);
+    }
+}
+
+/* Navigation links */
+
+.nav-link, .link-underline {
+    position: relative;
+}
+
+.nav-link-active::after, .nav-link:hover::after, .link-underline::after {
+    position: absolute;
+    content: "";
+    background-color: #111111;
+    height: 1px;
+    width: 100%;
+    bottom: -5px;
+    right: 0;
+}
+
+.link-underline::after {
+    bottom: 0 !important;
+}
+
+.link-underline:hover::after {
+    background-color: #999;
+}
+
+/* Block editor styles */
+
+.block-paragraph p {
+    padding-bottom: 1.5rem;
+}
+
+.block-paragraph p:last-child {
+    padding-bottom: 0;
+}
