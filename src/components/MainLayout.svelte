@@ -1,11 +1,12 @@
 <script>
     import "../app.css";
     import "../style.css";
-    import 'lazysizes';
-    import 'lazysizes/plugins/parent-fit/ls.parent-fit';
     import {usePanel} from "../panel.js";
     import {settings} from "../store.js";
     import {page} from "$app/stores";
+    import lazySizes from 'lazysizes';
+    import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+    import {onMount} from "svelte";
 
     let panelBackground1;
     let panelBackground2;
@@ -29,6 +30,10 @@
         {name: 'About', route: '/about'},
         {name: 'Contact',route: '/contact', },
     ];
+
+    onMount(()=> {
+        lazySizes.init();
+    })
 </script>
 
 <svelte:head>
