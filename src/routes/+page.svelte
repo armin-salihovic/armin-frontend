@@ -57,16 +57,16 @@
                 <aside class="md:col-span-2 col-span-6"></aside>
                 <div class="block-paragraph md:col-span-4 col-span-6 pr-0 xl:pr-32 flex gap-16 sm:gap-10">
                     <a href="{$settings['social_github']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black sm:h-24 sm:w-24 sm:flex sm:justify-center sm:items-center">
-                        <img class="h-7" src="/img/icon-github.svg" alt="">
+                        <img class="h-7" src="/img/icon-github.svg" alt="icon github">
                     </a>
                     <a href="{$settings['social_linkedin']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black sm:h-24 sm:w-24 sm:flex sm:justify-center sm:items-center">
-                        <img class="h-7" src="/img/icon-linkedin.svg" alt="">
+                        <img class="h-7" src="/img/icon-linkedin.svg" alt="icon linkedin">
                     </a>
                     <a href="mailto:{$settings['social_email']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black sm:h-24 sm:w-24 sm:flex sm:justify-center sm:items-center">
-                        <img class="h-7" src="/img/icon-envelope.svg" alt="">
+                        <img class="h-7" src="/img/icon-envelope.svg" alt="icon envelope">
                     </a>
                     <div on:click="{copyToClip}" on:keydown={copyToClip} class="cursor-pointer icon sm:border sm:border-black sm:h-24 sm:w-24 sm:flex sm:justify-center sm:items-center">
-                        <img class="h-7" src="/img/icon-discord.svg" alt="">
+                        <img class="h-7" src="/img/icon-discord.svg" alt="icon discord">
                     </div>
                 </div>
             </div>

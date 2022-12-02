@@ -2,7 +2,7 @@
     <div class="flex grid grid-cols-6 gap-4 py-0 lg:py-3">
         <aside class="md:col-span-2 col-span-6 relative">
             <h4 on:click={handleClick} on:keydown={handleClick} class="icon-cross text-white text-lg md:text-xl font-bold cursor-pointer">
-                <img src="/img/icon-cross.svg" class="h-4" alt="">
+                <img src="/img/icon-cross.svg" class="h-4" alt="icon cross">
             </h4>
         </aside>
         <div class="md:col-span-3 col-span-6 mt-4 md:mt-0">

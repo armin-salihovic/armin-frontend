@@ -83,7 +83,7 @@
             {#each data.data as project}
                 <a href="projects/{project.slug}">
                     <figure class="projects-img-container mb-3" style="{`background-image:url('${project.image_lqpi}');`}">
-                        <img alt="" class="lazyload blur-up w-full absolute" src="{project.image}" data-src="{project.image}" />
+                        <img alt="{ project.title }" class="lazyload blur-up w-full absolute" src="{project.image}" data-src="{project.image}" />
                     </figure>
                     <h2 class="fw-500 text-base md:text-lg">{ project.title }</h2>
                     <div class="flex gap-2 text-base md:text-lg flex-wrap leading-none">
