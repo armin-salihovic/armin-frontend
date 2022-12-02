@@ -95,6 +95,7 @@
             {/each}
         </article>
     </div>
+    <span slot="panel-title">{$panelData.title}</span>
     <article class="article-content" slot="panel">
         {@html $panelData.content}
     </article>

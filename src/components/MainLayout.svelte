@@ -69,7 +69,7 @@
     <div class="panel__container overflow-hidden" bind:this={panelBackground1} on:click={handlePanelClick} on:keydown="{handleClose}">
         <div class="panel cursor-pointer absolute top-0 right-0 max-w-screen-3xl z-50 2xl:pl-56 xl:pl-32 lg:pl-0" bind:this={panelBackground2}>
             <header class="flex justify-between py-6 px-6 sm:px-10 fixed top-0 bg-white leading-none text-xl cursor-default z-20">
-                <h2 class="">Test title</h2>
+                <h2><slot name="panel-title">Article</slot></h2>
                 <div class="cursor-pointer fixed top-6 right-6 sm:right-14" on:click={handleClose} on:keydown="{handleClose}">
                     <div class="relative hidden sm:block">Close</div>
                     <img class="icon-cross sm:h-2.5 h-3.5 block sm:absolute right-16 top-1/4" src="/img/icon-cross.svg" alt="cross icon"/>
