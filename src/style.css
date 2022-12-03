@@ -238,3 +238,26 @@ body {
         padding-bottom: 0.5rem;
     }
 }
+
+.block-image-frame {
+    background: #E6E6E6;
+    padding: 6rem 3rem;
+}
+
+@media(max-width: 1023px) {
+    .block-image-frame {
+        padding: 4rem 2rem;
+    }
+}
+
+@media(max-width: 767px) {
+    .block-image-frame {
+        padding: 3rem 1.5rem;
+    }
+}
+
+@media(max-width: 639px) {
+    .block-image-frame {
+        padding: 1rem 0.5rem;
+    }
+}
