@@ -32,11 +32,14 @@
     }
 
     let submitted = false;
+    let sending = false;
 
     async function sendEmail() {
         submitted = true;
 
-        if(validateForm()) return;
+        if(validateForm() || sending) return;
+
+        sending = true;
 
         try {
             await fetch(`${PUBLIC_API_BASE_URL}/send-email`,{
@@ -48,6 +51,7 @@
                 body: JSON.stringify(emailData),
             });
 
+            sending = false;
             submitted = false;
             openMessageBox('success', 'Message Sent!', ['Thanks for reaching out!', 'I\'ll get back to you as soon as possible! :)']);
             clearEmailData();
@@ -170,20 +174,20 @@
             <div class="md:col-span-3 col-span-6">
                 <div class="mb-10 w-full flex flex-col sm:flex-row">
                     <div class="flex flex-col w-full sm:w-1/2 mb-10 sm:mb-0 sm:pr-5">
-                        <input bind:value="{emailData.name}" on:keyup="{validateName}" on:focus="{closeMessageBox}" class="{validations.name.errors ? 'border-red-500' : 'border-black focus:border-green-400'} py-2 border-b text-gray-600 placeholder-gray-400 outline-none" id="name" type="text" placeholder="Name*">
+                        <input bind:value="{emailData.name}" on:keyup="{validateName}" on:focus="{closeMessageBox}" class="{validations.name.errors ? 'border-red-500' : 'border-black focus:border-green-400'} py-2 border-b text-gray-600 placeholder-gray-400 outline-none" id="name" type="text" placeholder="Name">
                         {#if validations.name.errors}
                             <small class="text-red-500">{ validations.name.message }</small>
                         {/if}
                     </div>
                     <div class="flex flex-col w-full sm:w-1/2 sm:pl-5">
-                        <input bind:value="{emailData.email}" on:focus="{closeMessageBox}" class="{validations.email.errors ? 'border-red-500' : 'border-black focus:border-green-400'} py-2 border-b text-gray-600 placeholder-gray-400 outline-none" id="email" type="email" placeholder="Email*">
+                        <input bind:value="{emailData.email}" on:focus="{closeMessageBox}" class="{validations.email.errors ? 'border-red-500' : 'border-black focus:border-green-400'} py-2 border-b text-gray-600 placeholder-gray-400 outline-none" id="email" type="email" placeholder="Email">
                         {#if validations.email.errors}
                             <small class="text-red-500">{ validations.email.message }</small>
                         {/if}
                     </div>
                 </div>
                 <div class="flex flex-col w-full mb-10">
-                    <input bind:value="{emailData.subject}" on:keyup="{validateSubject}" on:focus="{closeMessageBox}" class="{validations.subject.errors ? 'border-red-500' : 'border-black focus:border-green-400 '} py-2 border-b text-gray-600 placeholder-gray-400 outline-none" id="subject" type="text" placeholder="Subject*">
+                    <input bind:value="{emailData.subject}" on:keyup="{validateSubject}" on:focus="{closeMessageBox}" class="{validations.subject.errors ? 'border-red-500' : 'border-black focus:border-green-400 '} py-2 border-b text-gray-600 placeholder-gray-400 outline-none" id="subject" type="text" placeholder="Subject">
                     {#if validations.subject.errors}
                         <small class="text-red-500">{ validations.subject.message }</small>
                     {/if}
@@ -194,7 +198,13 @@
                         <small class="text-red-500">{ validations.message.message }</small>
                     {/if}
                 </div>
-                <button on:click="{sendEmail}" class=" py-2 px-10 mr-2 mb-2 text-base font-bold focus:outline-none bg-white border border-black hover:bg-black hover:text-white focus:z-10 focus:ring-4 focus:ring-gray-200 transition ease-in-out">Send</button>
+                <button on:click="{sendEmail}" class=" py-2 px-10 mr-2 mb-2 text-base font-bold focus:outline-none bg-white border border-black focus:z-10 focus:ring-4 focus:ring-gray-200 transition ease-in-out {sending ? 'bg-black text-white cursor-not-allowed' : 'hover:bg-black hover:text-white'}" disabled='{sending}'>
+                    {#if sending}
+                        <img class="animate-paw-wave icon-white h-5" src="/img/icon-paw.svg" alt="icon paw">
+                    {:else}
+                        <span>Send</span>
+                    {/if}
+                </button>
             </div>
         </div>
         <MessageBox open="{messageBox.open}" message="{messageBox.message}" type="{messageBox.type}" on:close={closeMessageBox} />

@@ -257,3 +257,26 @@ body {
         padding: 1rem 0.5rem;
     }
 }
+
+/* Animation of paw */
+
+.icon-white {
+    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(286deg) brightness(103%) contrast(103%);
+}
+
+.animate-paw-wave {
+    animation-name: paw-wave;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    animation-duration: 1.5s;
+    animation-direction: alternate;
+}
+
+@keyframes paw-wave {
+    0%   {
+        transform: rotate(-45deg);
+    }
+    100% {
+        transform: rotate(45deg);
+    }
+}
