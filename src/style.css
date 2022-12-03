@@ -159,10 +159,6 @@ body {
 }
 
 @media (max-width: 	1279px) {
-    .html-panel .content {
-        display: none;
-    }
-
     .panel {
         opacity: 0;
         width: 0;
