@@ -222,3 +222,19 @@ body {
 .block-paragraph p:last-child {
     padding-bottom: 0;
 }
+
+.block-paragraph h4 {
+    font-size: 1.1em;
+    padding-bottom: 0.5rem;
+}
+
+.block-paragraph a {
+    text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+    .block-paragraph h4 {
+        font-size: 1em;
+        padding-bottom: 0.5rem;
+    }
+}
