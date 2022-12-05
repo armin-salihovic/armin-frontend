@@ -150,11 +150,11 @@ body {
 @media (min-width: 1921px){
     .article-content .img-container {
         padding-bottom: 40%;
-        height: 951px;
+        height: 859px;
     }
 
     .article-content img {
-        height: 951px;
+        height: 859px;
     }
 }
 
