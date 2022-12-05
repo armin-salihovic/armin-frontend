@@ -72,6 +72,7 @@ body {
 .panel {
     opacity: 0;
     width: 0;
+    height: 0;
     transition: transform 300ms ease, -webkit-transform 300ms ease;
     transform: translateX(70px);
 }
@@ -199,6 +200,7 @@ body {
 
 .html-panel .panel {
     padding-top: 136px;
+    height: 100%;
 }
 
 @media (max-width: 2561px) {
