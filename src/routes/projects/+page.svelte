@@ -74,19 +74,18 @@
         };
     })
 </script>
-
 <MainLayout>
-    <div class="p-6 sm:px-12">
+    <div class="p-6 sm:px-12 3xl:px-16">
         <Seo title="{$settings['projects_meta_title']}" metaDescription="{$settings['projects_meta_description']}" ogImg="{$settings['projects_og']}" />
         <PageHeader title="Projects" />
-        <article class="projects-list leading-normal grid grid-cols-1 lg:grid-cols-2 gap-10 pb-10">
+        <article class="projects-list leading-normal grid grid-cols-1 lg:grid-cols-2 gap-10 3xl:gap-12 pb-10 3xl:pb-12">
             {#each data.data as project}
                 <a href="projects/{project.slug}">
-                    <figure class="projects-img-container mb-3" style="{`background-image:url('${project.image_lqpi}');`}">
+                    <figure class="projects-img-container mb-3 3xl:mb-4" style="{`background-image:url('${project.image_lqpi}');`}">
                         <img alt="{ project.title }" class="lazyload blur-up w-full absolute" src="{project.image}" data-src="{project.image}" />
                     </figure>
-                    <h2 class="fw-500 text-base md:text-lg">{ project.title }</h2>
-                    <div class="flex gap-2 text-base md:text-lg flex-wrap leading-none">
+                    <h2 class="fw-500 text-base md:text-lg 3xl:text-2xl">{ project.title }</h2>
+                    <div class="flex gap-2 3xl:gap-2.5 text-base md:text-lg 3xl:text-2xl flex-wrap leading-none">
                         {#each project.technologies as technology, index}
                                 <p class="text-gray-500 whitespace-nowrap">{ technology }{#if index !== project.technologies.length-1 },{/if}</p>
                         {/each}
