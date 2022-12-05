@@ -75,7 +75,7 @@
                     <img class="icon-cross sm:h-2.5 3xl:h-4 4xl:h-5 h-3.5 block sm:absolute right-16 3xl:right-24 4xl:right-32 top-1/4" src="/img/icon-cross.svg" alt="cross icon"/>
                 </div>
             </header>
-            <div class="inner-panel pb-4 3xl:pb-6 4xl:pb-8 bg-white cursor-default">
+            <div class="inner-panel bg-white cursor-default">
                 <slot name="panel"></slot>
             </div>
         </div>
