@@ -84,7 +84,7 @@
                     <figure class="projects-img-container mb-3 3xl:mb-4 4xl:mb-6" style="{`background-image:url('${project.image_lqpi}');`}">
                         <img alt="{ project.title }" class="lazyload blur-up w-full absolute" src="{project.image}" data-src="{project.image}" />
                     </figure>
-                    <h2 class="fw-500 text-base md:text-lg 3xl:text-2xl 4xl:text-3xl">{ project.title }</h2>
+                    <h2 class="fw-400 text-base md:text-lg 3xl:text-2xl 4xl:text-3xl">{ project.title }</h2>
                     <div class="flex gap-2 3xl:gap-2.5 4xl:gap-4 text-base md:text-lg 3xl:text-2xl 4xl:text-3xl flex-wrap leading-none">
                         {#each project.technologies as technology, index}
                                 <p class="text-gray-500 whitespace-nowrap">{ technology }{#if index !== project.technologies.length-1 },{/if}</p>

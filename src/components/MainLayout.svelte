@@ -37,7 +37,9 @@
 </script>
 
 <svelte:head>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 </svelte:head>
 <div>
     <div class="content w-full block bg-white max-w-screen-2xl 3xl:max-w-screen-3xl 4xl:max-w-screen-4xl mr-auto sm:py-0">
@@ -56,7 +58,7 @@
         <slot></slot>
         <hr class="my-10 3xl:my-12 4xl:my-20 h-px bg-black border-0">
         <div class="grid grid-cols-6 px-6 pb-10 3xl:pb-12 4xl:pb-20 sm:px-12 3xl:px-16 4xl:px-24 text-lg sm:text-xl 3xl:text-3xl 4xl:text-4xl">
-            <aside class="md:col-span-2 col-span-6">
+            <aside class="md:col-span-2 col-span-6 pb-3 md:pb-0">
                 <h3 class="">&copy; Armin Salihović</h3>
             </aside>
             <div class="md:col-span-4 col-span-6 flex flex-row gap-5 3xl:gap-7 4xl:gap-10">
