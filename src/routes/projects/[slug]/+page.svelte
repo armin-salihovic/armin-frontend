@@ -7,7 +7,7 @@
 </script>
 
 <MainLayout>
-    <Seo title="{data.data.title}" metaDescription="{data.data.description}" ogImg="{data.data.image}" />
+    <Seo title="{data.data.title + ' | Armin Salihović'}" metaDescription="{data.data.description}" ogImg="{data.data.image}" />
     <article class="article-content">
         {@html data.data.content}
     </article>
