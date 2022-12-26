@@ -92,6 +92,11 @@
                     </div>
                 </a>
             {/each}
+            <div class="odd:hidden even:block">
+                <figure class="hidden lg:flex justify-center projects-img-container mb-3 3xl:mb-4 4xl:mb-6">
+                    <img alt="logo-2" class="lazyload blur-up h-full absolute" src="/img/logo_4.3.1_favicon_1.0.svg" data-src="/img/logo_4.3.1_favicon_1.0.svg" style="padding: 22% 0 20% 0;"/>
+                </figure>
+            </div>
         </article>
     </div>
     <span slot="panel-title">{$panelData.title}</span>
