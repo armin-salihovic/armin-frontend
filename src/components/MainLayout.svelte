@@ -4,9 +4,7 @@
     import {usePanel} from "../panel.js";
     import {settings} from "../store.js";
     import {page} from "$app/stores";
-    import lazySizes from 'lazysizes';
-    import 'lazysizes/plugins/parent-fit/ls.parent-fit';
-    import {onMount} from "svelte";
+    import LazyLoading from "./LazyLoading.svelte";
 
     let panelBackground1;
     let panelBackground2;
@@ -30,10 +28,6 @@
         {name: 'About', route: '/about'},
         {name: 'Contact',route: '/contact', },
     ];
-
-    onMount(()=> {
-        lazySizes.init();
-    })
 </script>
 
 <svelte:head>
@@ -42,6 +36,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 </svelte:head>
 <div>
+    <LazyLoading />
     <div class="content w-full block bg-white max-w-screen-2xl 3xl:max-w-screen-3xl 4xl:max-w-screen-4xl mr-auto sm:py-0">
         <header class="flex justify-between w-full sm:mt-auto sm:sticky top-0 sm:py-6 3xl:py-8 4xl:py-12 bg-white z-10 p-6 sm:px-12 3xl:px-16 4xl:px-24">
             <div class="hidden sm:block sm:w-2/6 sm:leading-none sm:align-baseline sm:text-xl 3xl:text-3xl 4xl:text-4xl uppercase">

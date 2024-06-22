@@ -1,0 +1,13 @@
+.blur-div {
+    background-size: cover;
+    background-position: center;
+}
+
+.blur-div.loaded img {
+    opacity: 1;
+}
+
+.blur-div img {
+    opacity: 0;
+    transition: opacity 600ms ease, -webkit-filter 600ms ease;
+}

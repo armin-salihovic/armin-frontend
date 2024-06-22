@@ -89,19 +89,6 @@ body {
     cursor: pointer;
 }
 
-.image-square {
-    padding-bottom: 100% !important;
-}
-
-.blur-up {
-    opacity: 0;
-    transition: opacity 600ms ease, -webkit-filter 600ms ease;
-}
-
-.blur-up.lazyloaded {
-    opacity: 1;
-}
-
 .article-content img {
     object-fit: cover;
     width: 100%;
