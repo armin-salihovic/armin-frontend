@@ -94,11 +94,9 @@ body {
     width: 100%;
 }
 
-.article-content .img-container {
-    padding-bottom: 56.228%;
+.article-content .hero-img {
     background-repeat: no-repeat;
     background-size: cover;
-    position: relative;
     overflow: hidden;
 }
 
@@ -127,23 +125,13 @@ body {
 }
 
 @media (min-width: 2561px){
-    .article-content .img-container {
-        padding-bottom: 40%;
-        height: 1293px;
-    }
-
-    .article-content img {
+    .article-content .hero-img {
         height: 1293px;
     }
 }
 
 @media (min-width: 1921px) and (max-width: 2560px){
-    .article-content .img-container {
-        padding-bottom: 40%;
-        height: 859px;
-    }
-
-    .article-content img {
+    .article-content .hero-img {
         height: 859px;
     }
 }
@@ -153,12 +141,7 @@ body {
 }
 
 @media (min-width: 1000px) and (max-width: 1920px) {
-    .article-content .img-container {
-        padding-bottom: 40%;
-        height: 615px;
-    }
-
-    .article-content img {
+    .article-content .hero-img {
         height: 615px;
     }
 }
