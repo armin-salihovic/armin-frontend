@@ -45,7 +45,7 @@
 <div>
     <LazyLoading />
     <div class="content w-full block bg-white dark:bg-[#181a1b] dark:text-[#dddad6] max-w-screen-2xl 3xl:max-w-screen-3xl 4xl:max-w-screen-4xl mr-auto sm:py-0 transition-colors duration-300">
-        <header class="flex justify-between w-full sm:mt-auto sm:sticky top-0 sm:py-6 3xl:py-8 4xl:py-12 bg-white dark:bg-[#181a1b] z-10 p-6 sm:px-12 3xl:px-16 4xl:px-24 transition-colors duration-300">
+        <header class="relative flex justify-between w-full sm:mt-auto sm:sticky top-0 sm:py-6 3xl:py-8 4xl:py-12 bg-white dark:bg-[#181a1b] z-10 p-6 sm:px-12 3xl:px-16 4xl:px-24 transition-colors duration-300">
             <div class="hidden sm:block sm:w-2/6 sm:leading-none sm:align-baseline sm:text-xl 3xl:text-3xl 4xl:text-4xl uppercase">
                 <a href="/">Armin</a>
             </div>
@@ -55,7 +55,7 @@
                     <a href="{link.route}" class="nav-link" class:nav-link-active={$page.url.pathname.includes(link.route)}>{ link.name }</a>
                 {/each}
             </div>
-            <div class="flex justify-end sm:w-2/6">
+            <div class="absolute right-6 sm:right-12 3xl:right-16 4xl:right-24 top-6 sm:top-1/2 sm:-translate-y-1/2">
                 <ThemeToggle />
             </div>
         </header>

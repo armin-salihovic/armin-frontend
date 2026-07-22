@@ -6,6 +6,7 @@ Dark mode has been implemented for the existing `armin-frontend` SvelteKit proje
 
 ## Recent Findings
 
+- Fixed project page header logo visibility when a project panel is open in dark mode by making the panel-open logo inversion dark-mode aware in `src/components/PageHeader.svelte`.
 - `memory-bank/` existed but had no files before initialization.
 - Project is a SvelteKit frontend with Svelte 3 and Vite 3.
 - Styling relies heavily on Tailwind utility classes plus global CSS files.
@@ -30,7 +31,7 @@ Dark mode has been implemented for the existing `armin-frontend` SvelteKit proje
 - SEO tags are centralized in `src/components/Seo.svelte`.
 - Lazy-loading behavior is centralized in `src/lazy-loading.js`, `src/lazy-loading.css`, `LazyLoading.svelte`, and `LazyLoadingWrapper.svelte`.
 - Theme logic lives in `src/theme.js` with `initTheme()` and `toggleTheme()`.
-- `MainLayout.svelte` initializes the theme on mount and renders `ThemeToggle.svelte` aligned to the far right of the top navigation.
+- `MainLayout.svelte` initializes the theme on mount and renders `ThemeToggle.svelte` absolutely positioned at the far right of the top navigation so it does not affect the Projects/About/Contact menu layout.
 - `ThemeToggle.svelte` owns the accessible icon-only sun/moon pill switch markup, inline SVGs, and local switch styling.
 
 ## Active Decisions and Considerations
@@ -45,6 +46,8 @@ Dark mode has been implemented for the existing `armin-frontend` SvelteKit proje
 - Preserve the original wide-screen right sidebar contrast in dark mode: `.dark` and `.dark body` use `#111111`, while the main content surface uses `#171717`.
 - Keep the sun icon inside `ThemeToggle.svelte` light and readable in dark mode; do not dim it too aggressively because it sits near/under the moving thumb.
 - Current requested dark palette: main dark text/lines `#dddad6`, muted `.text-gray-500` equivalent `#9e9589`, main content background `#181a1b`, and body/right-sidebar background `#111111`.
+- Keep `ThemeToggle.svelte` out of normal header flex flow by absolutely positioning its wrapper inside the relative header; this preserves original nav link positioning.
+- In `PageHeader.svelte`, the panel-open logo should use `invert dark:invert-0` so light mode keeps the existing dimmed-panel logo treatment while dark mode does not make the logo invisible.
 
 ## Known Issues / Areas to Watch
 

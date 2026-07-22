@@ -48,7 +48,7 @@ Global settings, panel state, and theme state are consumed across routes/compone
   - `initTheme()` to read `localStorage.theme`, fall back to `prefers-color-scheme: dark`, apply the `dark` class to `<html>`, and update the store.
   - `toggleTheme()` to switch between `light` and `dark`, persist the choice, apply the class, and update the store.
 - `src/app.html` contains a small inline script that applies the initial `<html class="dark">` state before Svelte hydrates, reducing theme flash.
-- `MainLayout.svelte` initializes the theme on mount and renders `ThemeToggle.svelte` at the far right of the header navigation.
+- `MainLayout.svelte` initializes the theme on mount and renders `ThemeToggle.svelte` at the far right of the header navigation. The toggle wrapper is absolutely positioned inside the relative header so it does not affect the normal flex layout or shift nav links.
 - `ThemeToggle.svelte` owns the global icon-only sun/moon pill switch. The switch uses inline SVG icons, `aria-label`, and `aria-pressed` while reusing `toggleTheme()`.
 - Component-level styling uses Tailwind `dark:*` variants where possible.
 - Because the project uses Tailwind `^3.1.8`, use supported color shades such as `neutral-900`; do not use newer shades like `neutral-950` unless Tailwind is upgraded.
