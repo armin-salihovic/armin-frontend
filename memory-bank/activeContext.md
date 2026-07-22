@@ -2,7 +2,7 @@
 
 ## Current Work Focus
 
-Memory Bank initialization for the existing `armin-frontend` SvelteKit project.
+Dark mode has been implemented for the existing `armin-frontend` SvelteKit project.
 
 ## Recent Findings
 
@@ -11,6 +11,9 @@ Memory Bank initialization for the existing `armin-frontend` SvelteKit project.
 - Styling relies heavily on Tailwind utility classes plus global CSS files.
 - Backend integration is controlled by `PUBLIC_API_BASE_URL` from `$env/static/public`.
 - Settings are stored in a Svelte writable store and loaded from `/settings`.
+- Dark mode now uses Tailwind's class strategy with the `dark` class applied to `<html>`.
+- Theme preference is initialized early in `src/app.html` to reduce flash of incorrect theme, then synchronized through `src/theme.js` and the `theme` store.
+- Tailwind CSS is `^3.1.8`; avoid newer palette shades such as `neutral-950` because they are not generated in this version.
 
 ## Important Current Patterns
 
@@ -22,9 +25,12 @@ Memory Bank initialization for the existing `armin-frontend` SvelteKit project.
   - `panelData`
   - `settings`
   - `cache`
+  - `theme`
 - Project panel logic lives in `src/panel.js` and is consumed by `MainLayout.svelte` and the projects page.
 - SEO tags are centralized in `src/components/Seo.svelte`.
 - Lazy-loading behavior is centralized in `src/lazy-loading.js`, `src/lazy-loading.css`, `LazyLoading.svelte`, and `LazyLoadingWrapper.svelte`.
+- Theme logic lives in `src/theme.js` with `initTheme()` and `toggleTheme()`.
+- `MainLayout.svelte` initializes the theme on mount and renders an accessible pill-style header theme switch.
 
 ## Active Decisions and Considerations
 
@@ -33,6 +39,8 @@ Memory Bank initialization for the existing `armin-frontend` SvelteKit project.
 - Any changes to settings loading must consider SSR/browser behavior and Svelte writable store subscriptions.
 - Project detail UX depends on custom `beforeNavigate`, `onpopstate`, history manipulation, and panel store state.
 - Tailwind class safelisting appears partially handled by commented backend-support classes in `src/routes/projects/[slug]/+page.svelte`; be careful removing them because backend-generated HTML may rely on those classes.
+- Because page/article body content is injected with `{@html ...}`, dark-mode fallbacks for backend-rendered content belong in `src/style.css` in addition to Tailwind classes in Svelte components.
+- Dark backgrounds should use Tailwind 3.1-compatible utilities such as `dark:bg-neutral-900` plus global CSS fallbacks in `src/style.css` for `.dark`, `.dark body`, `.dark .content`, `.dark .content header`, and `.dark .inner-panel`.
 
 ## Known Issues / Areas to Watch
 

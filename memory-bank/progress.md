@@ -11,6 +11,7 @@
 - Contact form UI, validation, sending state, and message feedback are implemented.
 - Tailwind CSS and global styling are configured.
 - Lazy-loading components/utilities are present.
+- Dark mode is implemented with a persistent accessible header switch, system preference fallback, Tailwind `dark:*` classes, and global CSS fallbacks for backend-rendered content.
 
 ## What Is Left / Unknown
 
@@ -30,7 +31,7 @@
 
 ## Current Status
 
-Memory Bank initialized with the required core files on 2026-07-22.
+Dark mode implementation completed on 2026-07-22. The top nav now uses an accessible pill-style light/dark switch. Fixed an issue where backgrounds stayed white by replacing unsupported Tailwind 3.1 `neutral-950` classes with `neutral-900` and adding global dark background fallbacks. `npm.cmd run build` succeeds; `npm run build` directly in PowerShell is blocked by local script execution policy for `npm.ps1`.
 
 ## Recommended Next Steps
 

@@ -34,9 +34,24 @@ export const panelOpen = writable(false);
 export const panelData = writable({content: ''});
 export const settings = writable(null);
 export const cache = writable(null);
+export const theme = writable('light');
 ```
 
-Global settings and panel state are consumed across routes/components.
+Global settings, panel state, and theme state are consumed across routes/components.
+
+## Theme Pattern
+
+- Tailwind dark mode is configured with `darkMode: 'class'` in `tailwind.config.cjs`.
+- The active theme is represented by the `theme` writable store in `src/store.js`.
+- `src/theme.js` exports:
+  - `initTheme()` to read `localStorage.theme`, fall back to `prefers-color-scheme: dark`, apply the `dark` class to `<html>`, and update the store.
+  - `toggleTheme()` to switch between `light` and `dark`, persist the choice, apply the class, and update the store.
+- `src/app.html` contains a small inline script that applies the initial `<html class="dark">` state before Svelte hydrates, reducing theme flash.
+- `MainLayout.svelte` initializes the theme on mount and renders the global `Light`/`Dark` pill switch in the header navigation. The switch uses `aria-label` and `aria-pressed` while reusing `toggleTheme()`.
+- Component-level styling uses Tailwind `dark:*` variants where possible.
+- Because the project uses Tailwind `^3.1.8`, use supported color shades such as `neutral-900`; do not use newer shades like `neutral-950` unless Tailwind is upgraded.
+- Backend-rendered `{@html ...}` content is supported by global dark-mode CSS fallbacks in `src/style.css`, especially for article content, block image frames, gray text, borders, and nav/link underline colors.
+- Global dark-mode background fallbacks are defined for `.dark`, `.dark body`, `.dark .content`, `.dark .content header`, and `.dark .inner-panel` to prevent light backgrounds from remaining when dark text styles apply.
 
 ## Panel Pattern
 
@@ -71,7 +86,7 @@ Common endpoints:
 
 ## Styling Pattern
 
-- Tailwind CSS is configured in `tailwind.config.cjs` with content scanning over `./src/**/*.{html,js,svelte,ts}`.
+- Tailwind CSS is configured in `tailwind.config.cjs` with class-based dark mode and content scanning over `./src/**/*.{html,js,svelte,ts}`.
 - Custom screens:
   - `xs: 475px`
   - `3xl: 1921px`
