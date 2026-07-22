@@ -1,5 +1,5 @@
 <div class="flex pb-16 pt-6 sm:justify-center sm:py-36 3xl:py-48 4xl:py-72 sm:grid sm:grid-cols-6">
-        <div style="{$panelOpen ? '' : 'display: none'}" class="hidden sm:block sm:col-span-2 mt-2.5 4xl:mt-5 invert dark:invert-0">
+        <div style="{$panelOpen ? '' : 'display: none'}" class="hidden sm:block sm:col-span-2 mt-2.5 4xl:mt-5 invert">
             <a href="/" ><img class="page-header-logo inline-block" src="/img/logo_4.3.1_favicon_1.0.svg" alt="logo"></a>
         </div>
         <div style="{!$panelOpen ? '' : 'display: none'}" class="hidden sm:block sm:col-span-2 mt-2.5 4xl:mt-5 dark:invert">

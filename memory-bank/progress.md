@@ -12,7 +12,7 @@
 - Tailwind CSS and global styling are configured.
 - Lazy-loading components/utilities are present.
 - Dark mode is implemented with a persistent accessible header switch component, system preference fallback, Tailwind `dark:*` classes, and global CSS fallbacks for backend-rendered content.
-- Project page header logo remains visible when a project detail panel is open in dark mode.
+- Project page header logo remains visible when a project detail panel is open, including in dark mode.
 
 ## What Is Left / Unknown
 
@@ -32,7 +32,7 @@
 
 ## Current Status
 
-Dark mode implementation completed on 2026-07-22. The top nav now uses `ThemeToggle.svelte`, an accessible icon-only sun/moon pill-style light/dark switch aligned to the far right and absolutely positioned so it does not shift Projects/About/Contact. The sun icon contrast was improved for dark mode. Fixed an issue where backgrounds stayed white by replacing unsupported Tailwind 3.1 `neutral-950` classes with explicit palette colors and global dark background fallbacks. Current palette: main text/lines `#dddad6`, muted gray `#9e9589`, main background `#181a1b`, body/right-sidebar `#111111`. Fixed the projects page header logo becoming invisible when a project detail panel is open in dark mode by changing the panel-open logo wrapper to `invert dark:invert-0` in `src/components/PageHeader.svelte`. `npm.cmd run build` succeeds; `npm run build` directly in PowerShell is blocked by local script execution policy for `npm.ps1`.
+Dark mode implementation completed on 2026-07-22. The top nav now uses `ThemeToggle.svelte`, an accessible icon-only sun/moon pill-style light/dark switch aligned to the far right and absolutely positioned so it does not shift Projects/About/Contact. The sun icon contrast was improved for dark mode. Fixed an issue where backgrounds stayed white by replacing unsupported Tailwind 3.1 `neutral-950` classes with explicit palette colors and global dark background fallbacks. Current palette: main text/lines `#dddad6`, muted gray `#9e9589`, main background `#181a1b`, body/right-sidebar `#111111`. Fixed the projects page header logo becoming invisible when a project detail panel is open by keeping the panel-open logo wrapper inverted in `src/components/PageHeader.svelte`; this is required because `.html-panel .content` darkens the underlying projects page/header in both light and dark mode. `npm.cmd run build` succeeds; `npm run build` directly in PowerShell is blocked by local script execution policy for `npm.ps1`.
 
 ## Recommended Next Steps
 
