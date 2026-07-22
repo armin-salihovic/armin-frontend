@@ -11,7 +11,7 @@
 - Contact form UI, validation, sending state, and message feedback are implemented.
 - Tailwind CSS and global styling are configured.
 - Lazy-loading components/utilities are present.
-- Dark mode is implemented with a persistent accessible header switch, system preference fallback, Tailwind `dark:*` classes, and global CSS fallbacks for backend-rendered content.
+- Dark mode is implemented with a persistent accessible header switch component, system preference fallback, Tailwind `dark:*` classes, and global CSS fallbacks for backend-rendered content.
 
 ## What Is Left / Unknown
 
@@ -31,7 +31,7 @@
 
 ## Current Status
 
-Dark mode implementation completed on 2026-07-22. The top nav now uses an accessible pill-style light/dark switch. Fixed an issue where backgrounds stayed white by replacing unsupported Tailwind 3.1 `neutral-950` classes with `neutral-900` and adding global dark background fallbacks. Preserved the wide-screen right sidebar in dark mode by keeping the body background `#111111` while the content surface remains `#171717`. `npm.cmd run build` succeeds; `npm run build` directly in PowerShell is blocked by local script execution policy for `npm.ps1`.
+Dark mode implementation completed on 2026-07-22. The top nav now uses `ThemeToggle.svelte`, an accessible icon-only sun/moon pill-style light/dark switch aligned to the far right. The sun icon contrast was improved for dark mode. Fixed an issue where backgrounds stayed white by replacing unsupported Tailwind 3.1 `neutral-950` classes with explicit palette colors and global dark background fallbacks. Current palette: main text/lines `#dddad6`, muted gray `#9e9589`, main background `#181a1b`, body/right-sidebar `#111111`. `npm.cmd run build` succeeds; `npm run build` directly in PowerShell is blocked by local script execution policy for `npm.ps1`.
 
 ## Recommended Next Steps
 

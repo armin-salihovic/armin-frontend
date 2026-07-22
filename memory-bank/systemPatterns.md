@@ -21,6 +21,7 @@ The application is a SvelteKit frontend that renders a personal portfolio using 
 - `MainLayout.svelte` wraps page content, imports global CSS, renders header/footer navigation, lazy loading, and the project detail panel container.
 - `Seo.svelte` centralizes `<svelte:head>` title, description, author, and Open Graph tags.
 - `PageHeader.svelte` provides reusable page heading presentation.
+- `ThemeToggle.svelte` provides the reusable light/dark mode switch used in the top navigation.
 - `MessageBox.svelte` is used for user feedback on copy/contact actions.
 - `LazyLoading.svelte` starts global lazy-loading behavior on mount in the browser.
 - `LazyLoadingWrapper.svelte` wraps images with LQIP support.
@@ -47,12 +48,14 @@ Global settings, panel state, and theme state are consumed across routes/compone
   - `initTheme()` to read `localStorage.theme`, fall back to `prefers-color-scheme: dark`, apply the `dark` class to `<html>`, and update the store.
   - `toggleTheme()` to switch between `light` and `dark`, persist the choice, apply the class, and update the store.
 - `src/app.html` contains a small inline script that applies the initial `<html class="dark">` state before Svelte hydrates, reducing theme flash.
-- `MainLayout.svelte` initializes the theme on mount and renders the global `Light`/`Dark` pill switch in the header navigation. The switch uses `aria-label` and `aria-pressed` while reusing `toggleTheme()`.
+- `MainLayout.svelte` initializes the theme on mount and renders `ThemeToggle.svelte` at the far right of the header navigation.
+- `ThemeToggle.svelte` owns the global icon-only sun/moon pill switch. The switch uses inline SVG icons, `aria-label`, and `aria-pressed` while reusing `toggleTheme()`.
 - Component-level styling uses Tailwind `dark:*` variants where possible.
 - Because the project uses Tailwind `^3.1.8`, use supported color shades such as `neutral-900`; do not use newer shades like `neutral-950` unless Tailwind is upgraded.
 - Backend-rendered `{@html ...}` content is supported by global dark-mode CSS fallbacks in `src/style.css`, especially for article content, block image frames, gray text, borders, and nav/link underline colors.
 - Global dark-mode background fallbacks are defined for `.dark`, `.dark body`, `.dark .content`, `.dark .content header`, and `.dark .inner-panel` to prevent light backgrounds from remaining when dark text styles apply.
 - The wide-screen right sidebar is the body background revealed by the max-width `.content` wrapper with `mr-auto`. In dark mode, keep body background `#111111` and content background `#171717` so the sidebar remains visible.
+- Current dark palette uses `#dddad6` for main text and line/border colors, `#9e9589` for muted `.text-gray-500` equivalents, `#181a1b` for main content surfaces, and `#111111` for the body/right-sidebar background.
 
 ## Panel Pattern
 

@@ -30,7 +30,8 @@ Dark mode has been implemented for the existing `armin-frontend` SvelteKit proje
 - SEO tags are centralized in `src/components/Seo.svelte`.
 - Lazy-loading behavior is centralized in `src/lazy-loading.js`, `src/lazy-loading.css`, `LazyLoading.svelte`, and `LazyLoadingWrapper.svelte`.
 - Theme logic lives in `src/theme.js` with `initTheme()` and `toggleTheme()`.
-- `MainLayout.svelte` initializes the theme on mount and renders an accessible pill-style header theme switch.
+- `MainLayout.svelte` initializes the theme on mount and renders `ThemeToggle.svelte` aligned to the far right of the top navigation.
+- `ThemeToggle.svelte` owns the accessible icon-only sun/moon pill switch markup, inline SVGs, and local switch styling.
 
 ## Active Decisions and Considerations
 
@@ -42,6 +43,8 @@ Dark mode has been implemented for the existing `armin-frontend` SvelteKit proje
 - Because page/article body content is injected with `{@html ...}`, dark-mode fallbacks for backend-rendered content belong in `src/style.css` in addition to Tailwind classes in Svelte components.
 - Dark backgrounds should use Tailwind 3.1-compatible utilities such as `dark:bg-neutral-900` plus global CSS fallbacks in `src/style.css` for `.dark`, `.dark body`, `.dark .content`, `.dark .content header`, and `.dark .inner-panel`.
 - Preserve the original wide-screen right sidebar contrast in dark mode: `.dark` and `.dark body` use `#111111`, while the main content surface uses `#171717`.
+- Keep the sun icon inside `ThemeToggle.svelte` light and readable in dark mode; do not dim it too aggressively because it sits near/under the moving thumb.
+- Current requested dark palette: main dark text/lines `#dddad6`, muted `.text-gray-500` equivalent `#9e9589`, main content background `#181a1b`, and body/right-sidebar background `#111111`.
 
 ## Known Issues / Areas to Watch
 

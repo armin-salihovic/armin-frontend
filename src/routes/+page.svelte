@@ -56,16 +56,16 @@
             <div class="flex grid grid-cols-6 text-base md:text-lg 3xl:text-2xl 4xl:text-3xl gap-4 3xl:gap-5 4xl:gap-8">
                 <aside class="md:col-span-2 col-span-6"></aside>
                 <div class="block-paragraph md:col-span-4 col-span-6 pr-0 xl:pr-32 3xl:pr-40 4xl:pr-64 flex gap-16 sm:gap-10 3xl:gap-12 4xl:gap-20">
-                    <a href="{$settings['social_github']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black dark:sm:border-neutral-100 sm:h-24 sm:w-24 3xl:w-32 3xl:h-32 4xl:h-48 4xl:w-48 sm:flex sm:justify-center sm:items-center">
+                    <a href="{$settings['social_github']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black dark:sm:border-[#dddad6] sm:h-24 sm:w-24 3xl:w-32 3xl:h-32 4xl:h-48 4xl:w-48 sm:flex sm:justify-center sm:items-center">
                         <img class="h-7 3xl:h-9 4xl:h-14 dark:invert" src="/img/icon-github.svg" alt="icon github">
                     </a>
-                    <a href="{$settings['social_linkedin']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black dark:sm:border-neutral-100 sm:h-24 sm:w-24 3xl:w-32 3xl:h-32 4xl:h-48 4xl:w-48 sm:flex sm:justify-center sm:items-center">
+                    <a href="{$settings['social_linkedin']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black dark:sm:border-[#dddad6] sm:h-24 sm:w-24 3xl:w-32 3xl:h-32 4xl:h-48 4xl:w-48 sm:flex sm:justify-center sm:items-center">
                         <img class="h-7 3xl:h-9 4xl:h-14 dark:invert" src="/img/icon-linkedin.svg" alt="icon linkedin">
                     </a>
-                    <a href="mailto:{$settings['social_email']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black dark:sm:border-neutral-100 sm:h-24 sm:w-24 3xl:w-32 3xl:h-32 4xl:h-48 4xl:w-48 sm:flex sm:justify-center sm:items-center">
+                    <a href="mailto:{$settings['social_email']}" target="_blank" rel="noreferrer" class="icon sm:border sm:border-black dark:sm:border-[#dddad6] sm:h-24 sm:w-24 3xl:w-32 3xl:h-32 4xl:h-48 4xl:w-48 sm:flex sm:justify-center sm:items-center">
                         <img class="h-7 3xl:h-9 4xl:h-14 dark:invert" src="/img/icon-envelope.svg" alt="icon envelope">
                     </a>
-                    <div on:click="{copyToClip}" on:keydown={copyToClip} class="cursor-pointer icon sm:border sm:border-black dark:sm:border-neutral-100 sm:h-24 sm:w-24 sm:flex 3xl:w-32 3xl:h-32 4xl:h-48 4xl:w-48 sm:justify-center sm:items-center">
+                    <div on:click="{copyToClip}" on:keydown={copyToClip} class="cursor-pointer icon sm:border sm:border-black dark:sm:border-[#dddad6] sm:h-24 sm:w-24 sm:flex 3xl:w-32 3xl:h-32 4xl:h-48 4xl:w-48 sm:justify-center sm:items-center">
                         <img class="h-7 3xl:h-9 4xl:h-14 dark:invert" src="/img/icon-discord.svg" alt="icon discord">
                     </div>
                 </div>
@@ -85,8 +85,8 @@
     }
 
     :global(.dark) .icon:hover {
-        color: #111111;
-        background-color: #f5f5f5;
+        color: #181a1b;
+        background-color: #dddad6;
     }
 
     :global(.dark) .icon:hover img {
