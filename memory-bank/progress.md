@@ -31,7 +31,7 @@
 
 ## Current Status
 
-Dark mode implementation completed on 2026-07-22. The top nav now uses an accessible pill-style light/dark switch. Fixed an issue where backgrounds stayed white by replacing unsupported Tailwind 3.1 `neutral-950` classes with `neutral-900` and adding global dark background fallbacks. `npm.cmd run build` succeeds; `npm run build` directly in PowerShell is blocked by local script execution policy for `npm.ps1`.
+Dark mode implementation completed on 2026-07-22. The top nav now uses an accessible pill-style light/dark switch. Fixed an issue where backgrounds stayed white by replacing unsupported Tailwind 3.1 `neutral-950` classes with `neutral-900` and adding global dark background fallbacks. Preserved the wide-screen right sidebar in dark mode by keeping the body background `#111111` while the content surface remains `#171717`. `npm.cmd run build` succeeds; `npm run build` directly in PowerShell is blocked by local script execution policy for `npm.ps1`.
 
 ## Recommended Next Steps
 

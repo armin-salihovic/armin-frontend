@@ -41,6 +41,7 @@ Dark mode has been implemented for the existing `armin-frontend` SvelteKit proje
 - Tailwind class safelisting appears partially handled by commented backend-support classes in `src/routes/projects/[slug]/+page.svelte`; be careful removing them because backend-generated HTML may rely on those classes.
 - Because page/article body content is injected with `{@html ...}`, dark-mode fallbacks for backend-rendered content belong in `src/style.css` in addition to Tailwind classes in Svelte components.
 - Dark backgrounds should use Tailwind 3.1-compatible utilities such as `dark:bg-neutral-900` plus global CSS fallbacks in `src/style.css` for `.dark`, `.dark body`, `.dark .content`, `.dark .content header`, and `.dark .inner-panel`.
+- Preserve the original wide-screen right sidebar contrast in dark mode: `.dark` and `.dark body` use `#111111`, while the main content surface uses `#171717`.
 
 ## Known Issues / Areas to Watch
 

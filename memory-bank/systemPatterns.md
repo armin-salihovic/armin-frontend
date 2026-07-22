@@ -52,6 +52,7 @@ Global settings, panel state, and theme state are consumed across routes/compone
 - Because the project uses Tailwind `^3.1.8`, use supported color shades such as `neutral-900`; do not use newer shades like `neutral-950` unless Tailwind is upgraded.
 - Backend-rendered `{@html ...}` content is supported by global dark-mode CSS fallbacks in `src/style.css`, especially for article content, block image frames, gray text, borders, and nav/link underline colors.
 - Global dark-mode background fallbacks are defined for `.dark`, `.dark body`, `.dark .content`, `.dark .content header`, and `.dark .inner-panel` to prevent light backgrounds from remaining when dark text styles apply.
+- The wide-screen right sidebar is the body background revealed by the max-width `.content` wrapper with `mr-auto`. In dark mode, keep body background `#111111` and content background `#171717` so the sidebar remains visible.
 
 ## Panel Pattern
 
