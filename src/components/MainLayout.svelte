@@ -49,13 +49,16 @@
             <div class="hidden sm:block sm:w-2/6 sm:leading-none sm:align-baseline sm:text-xl 3xl:text-3xl 4xl:text-4xl uppercase">
                 <a href="/">Armin</a>
             </div>
-            <a class="sm:align-baseline sm:order-3 sm:hidden" href="/"><img class="logo dark:invert" src="/img/logo_4.3.1.svg" alt="logo"></a>
+            <div class="flex flex-col justify-between items-start gap-3 sm:hidden">
+                <a href="/"><img class="logo dark:invert" src="/img/logo_4.3.1.svg" alt="logo"></a>
+                <ThemeToggle />
+            </div>
             <div class="text-lg flex flex-col sm:w-4/6 sm:flex-row justify-start sm:text-xl 3xl:text-3xl 4xl:text-4xl sm:leading-none gap-5 3xl:gap-7 4xl:gap-10">
                 {#each links as link}
                     <a href="{link.route}" class="nav-link" class:nav-link-active={$page.url.pathname.includes(link.route)}>{ link.name }</a>
                 {/each}
             </div>
-            <div class="absolute right-6 sm:right-12 3xl:right-16 4xl:right-24 top-6 sm:top-1/2 sm:-translate-y-1/2">
+            <div class="hidden sm:block absolute right-6 sm:right-12 3xl:right-16 4xl:right-24 top-6 sm:top-1/2 sm:-translate-y-1/2">
                 <ThemeToggle />
             </div>
         </header>
