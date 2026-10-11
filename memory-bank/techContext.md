@@ -1,65 +1,25 @@
 # Tech Context
 
-## Core Technologies
+## Runtime and Tooling
 
 - Svelte `^3.44.0`
-- SvelteKit `next`
+- SvelteKit `next` as pinned in the existing lockfile
 - Vite `^3.1.0`
 - Tailwind CSS `^3.1.8`
-- PostCSS `^8.4.18`
-- Autoprefixer `^10.4.12`
 - `svelte-preprocess` `^4.10.7`
-- `@sveltejs/adapter-auto` `next`
+- `sharp` as a dev dependency for image metadata generation
+- JavaScript modules; no TypeScript migration
 
-## Package Configuration
+## Scripts
 
-Project is private and ESM-based:
+- `npm run dev` starts Vite/SvelteKit.
+- `npm run build` produces the current SvelteKit build.
+- `npm run preview` previews the build.
+- `npm run images` updates generated image metadata and LQIPs.
 
-```json
-{
-  "name": "armin-frontend",
-  "private": true,
-  "type": "module"
-}
-```
+## Configuration and Constraints
 
-Available scripts:
-
-- `npm run dev` → `vite dev`
-- `npm run build` → `vite build`
-- `npm run preview` → `vite preview`
-
-No lint, format, or test scripts are currently configured.
-
-## Environment
-
-The frontend requires `PUBLIC_API_BASE_URL` for API requests. `.env.example` exists but was not inspected during initialization. Any local development or build requiring API data should define this variable.
-
-## Configuration Files
-
-- `svelte.config.js`
-  - Uses `@sveltejs/adapter-auto`.
-  - Enables `svelte-preprocess` with PostCSS.
-- `vite.config.js`
-  - Uses the SvelteKit Vite plugin.
-- `tailwind.config.cjs`
-  - Scans Svelte/JS/HTML/TS files under `src`.
-  - Adds custom breakpoints.
-- `postcss.config.cjs`
-  - Uses Tailwind CSS and autoprefixer.
-
-## Development Commands
-
-```bash
-npm install
-npm run dev
-npm run build
-npm run preview
-```
-
-## Technical Constraints
-
-- Backend API availability and response shape are required for normal rendering.
-- The project uses older SvelteKit `next` package versions, so be careful applying current SvelteKit documentation without checking compatibility.
-- Browser-specific APIs such as `navigator.clipboard`, `document`, `window`, and `onpopstate` are used in client-side contexts.
-- Project article content is injected with `{@html ...}`, so backend content must be trusted/sanitized upstream.
+- `svelte.config.js` keeps the existing adapter-auto setup and PostCSS preprocess configuration.
+- Cloudflare Pages selects the bundled adapter-auto Cloudflare target in its deployment environment.
+- Contact settings are server-only: `RESEND_API_KEY`, `CONTACT_EMAIL_FROM`, `CONTACT_EMAIL_TO`.
+- Do not add a CMS, database/runtime content API, or framework/tooling upgrades as part of routine content changes.

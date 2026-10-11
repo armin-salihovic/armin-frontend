@@ -1,17 +1,22 @@
 <script>
-    import MainLayout from "../../components/MainLayout.svelte";
-    import Seo from "../../components/Seo.svelte";
-    import {settings} from "../../store.js";
+	import MainLayout from '../../components/MainLayout.svelte';
+	import Seo from '../../components/Seo.svelte';
+	import BlockRenderer from '../../lib/blocks/BlockRenderer.svelte';
+	import { site } from '../../lib/config/site.js';
 
-    /** @type {import('./$types').PageData} */
-    export let data;
+	export let data;
 </script>
 
 <MainLayout>
-    <div>
-        <Seo title="{$settings['about_meta_title']}" metaDescription="{$settings['about_meta_description']}" ogImg="{$settings['about_og']}" />
-        <article class="article-content">
-            {@html data.data.content}
-        </article>
-    </div>
+	<div>
+		<Seo
+			title={site.seo.about.title}
+			metaDescription={site.seo.about.description}
+			ogImg={site.seo.about.ogImage}
+			canonicalPath="/about"
+		/>
+		<article class="article-content">
+			<BlockRenderer blocks={data.page.blocks} />
+		</article>
+	</div>
 </MainLayout>

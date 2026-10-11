@@ -1,7 +1,5 @@
-import {PUBLIC_API_BASE_URL} from '$env/static/public';
+import home from '../lib/content/pages/home.js';
 
-export async function load({fetch}) {
-    const request = await fetch(`${PUBLIC_API_BASE_URL}/home`);
-
-    return await request.json();
+export function load() {
+    return { page: home };
 }

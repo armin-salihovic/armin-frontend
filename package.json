@@ -5,13 +5,15 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"images": "node scripts/generate-image-metadata.mjs"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "next",
 		"@sveltejs/kit": "next",
 		"autoprefixer": "^10.4.12",
 		"postcss": "^8.4.18",
+		"sharp": "^0.32.6",
 		"svelte": "^3.44.0",
 		"svelte-preprocess": "^4.10.7",
 		"tailwindcss": "^3.1.8",

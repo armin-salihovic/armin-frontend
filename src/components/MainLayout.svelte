@@ -2,12 +2,12 @@
     import "../app.css";
     import "../style.css";
     import {usePanel} from "../panel.js";
-    import {settings} from "../store.js";
     import {page} from "$app/stores";
     import {onMount} from "svelte";
     import LazyLoading from "./LazyLoading.svelte";
     import {initTheme} from "../theme.js";
     import ThemeToggle from "./ThemeToggle.svelte";
+    import {site} from "../lib/config/site.js";
 
     let panelBackground1;
     let panelBackground2;
@@ -38,6 +38,7 @@
 </script>
 
 <svelte:head>
+    <link rel="icon" href={site.favicon}>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -66,9 +67,9 @@
                 <h3 class="">&copy; Armin Salihović</h3>
             </aside>
             <div class="md:col-span-4 col-span-6 flex flex-row gap-5 3xl:gap-7 4xl:gap-10">
-                <a href="{$settings['social_github']}" target="_blank" rel="noreferrer" class="link-underline">GitHub</a>
-                <a href="{$settings['social_linkedin']}" target="_blank" rel="noreferrer" class="link-underline">LinkedIn</a>
-                <a href="mailto:{$settings['social_email']}" target="_blank" rel="noreferrer" class="link-underline">{$settings['social_email']}</a>
+                <a href={site.social.github} target="_blank" rel="noreferrer" class="link-underline">GitHub</a>
+                <a href={site.social.linkedin} target="_blank" rel="noreferrer" class="link-underline">LinkedIn</a>
+                <a href="mailto:{site.social.email}" target="_blank" rel="noreferrer" class="link-underline">{site.social.email}</a>
             </div>
         </div>
     </div>

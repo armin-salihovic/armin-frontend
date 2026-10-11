@@ -5,7 +5,7 @@
         <div style="{!$panelOpen ? '' : 'display: none'}" class="hidden sm:block sm:col-span-2 mt-2.5 4xl:mt-5 dark:invert">
             <a href="/"><img class="page-header-logo inline-block" src="/img/logo_4.3.1_favicon_1.0.svg" alt="logo"></a>
         </div>
-    <h1 class="text-5xl sm:text-7xl lg:text-8xl 3xl:text-9xl 4xl:text-[12rem] flex flex-col whitespace-pre fw-600 sm:col-span-4 leading-none"><span>{@html title}</span></h1>
+    <h1 class="text-5xl sm:text-7xl lg:text-8xl 3xl:text-9xl 4xl:text-[12rem] flex flex-col whitespace-pre fw-600 sm:col-span-4 leading-none"><span>{title}</span></h1>
 </div>
 
 <script>

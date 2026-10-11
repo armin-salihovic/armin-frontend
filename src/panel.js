@@ -1,7 +1,7 @@
 import {panelData, panelOpen} from "./store.js";
 
 let panelOpenValue;
-let panelDataValue = {content: ''};
+let panelDataValue = null;
 
 panelOpen.subscribe((value) => {
     panelOpenValue = value;
@@ -13,7 +13,7 @@ panelData.subscribe((value) => {
 
 function closePanel() {
     if(panelOpenValue) {
-        panelData.set({content: ''});
+        panelData.set(null);
         document.body.classList.remove('html-panel')
         document.body.classList.remove('noscroll')
         panelOpen.set(false);
@@ -24,7 +24,7 @@ function closePanel() {
 function openPanel() {
     document.body.classList.add('html-panel')
     document.body.classList.add('noscroll')
-    document.title = panelDataValue.title + ' | Armin Salihović';
+    document.title = `${panelDataValue?.title ?? 'Projects'} | Armin Salihović`;
     panelOpen.set(true);
 }
 

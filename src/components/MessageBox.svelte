@@ -10,7 +10,7 @@
             {#if message.content !== null}
                 <div class="py-10 3xl:py-12 4xl:py-20">
                     {#each message.content as x}
-                        <p class="text-white text-base md:text-lg 3xl:text-2xl 4xl:text-3xl">{@html x}</p>
+                        <p class="text-white text-base md:text-lg 3xl:text-2xl 4xl:text-3xl">{x}</p>
                     {/each}
                 </div>
             {/if}

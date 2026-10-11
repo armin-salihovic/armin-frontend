@@ -1,38 +1,20 @@
 # Project Brief
 
-## Project Name
-
-`armin-frontend`
-
 ## Purpose
 
-This project is the frontend for Armin Salihović's personal portfolio website. It presents personal introduction content, projects, about information, contact capabilities, CV redirection, SEO metadata, and sitemap output.
+Build and maintain a frontend-only SvelteKit portfolio for Armin Salihović.
 
 ## Core Requirements
 
-- Render a responsive personal portfolio website using SvelteKit.
-- Fetch page content, project data, settings, SEO metadata, sitemap XML, and CV URL from an external API configured via `PUBLIC_API_BASE_URL`.
-- Provide primary public pages:
-  - Home (`/`)
-  - Projects (`/projects`)
-  - Project detail (`/projects/[slug]`)
-  - About (`/about`)
-  - Contact (`/contact`)
-  - CV redirect (`/cv`)
-  - Sitemap proxy (`/sitemap.xml`)
-- Support a project detail panel interaction from the projects listing while keeping standalone project detail pages available.
-- Provide contact form validation and submit messages to the backend `/send-email` endpoint.
-- Use global settings from the backend for social links, SEO fields, Open Graph images, and CV URL.
+- Preserve the current visual design, responsive layout, navigation, project panel, dark mode, lazy loading, and SEO.
+- Store Home/About blocks, site settings, and the five canonical projects in JavaScript modules.
+- Serve current images and the active CV from local static assets.
+- Generate local sitemap XML for the public canonical routes.
+- Return proper 404 responses for unknown project slugs; do not support historical aliases.
+- Send contact form submissions to same-origin `/api/contact`, validating all fields on the server and keeping provider credentials private.
+- Generate image dimensions, aspect ratios, and embedded base64 LQIPs with `npm run images`.
+- Keep the existing Svelte/SvelteKit/Tailwind/Vite versions and JavaScript implementation.
 
-## Source of Truth
+## Deployment
 
-The current implementation is the source of truth. The default `README.md` is still the generated create-svelte README and does not fully describe the product.
-
-## Success Criteria
-
-- Portfolio pages load and render API-provided content.
-- Navigation between Home, Projects, About, and Contact works.
-- Project detail content can be opened from the projects list panel and accessed directly by URL.
-- Contact form validates required fields and submits to the configured backend.
-- SEO component receives metadata from settings or page data.
-- Build works through `npm run build` when required environment variables and API availability are present.
+The project targets Cloudflare Pages. Configure `RESEND_API_KEY`, `CONTACT_EMAIL_FROM`, and `CONTACT_EMAIL_TO` as server-side environment values before enabling contact delivery.

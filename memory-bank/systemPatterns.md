@@ -1,98 +1,32 @@
 # System Patterns
 
-## Architecture Overview
+## Architecture
 
-The application is a SvelteKit frontend that renders a personal portfolio using API-backed content. It combines server/client route loading, shared Svelte stores, reusable layout/components, and global CSS/Tailwind styling.
+- `src/lib/config/site.js` holds local social, SEO, favicon, URL, and CV settings.
+- `src/lib/content/pages` holds Home and About block arrays.
+- `src/lib/content/projects` holds the ordered project registry and self-contained project modules.
+- `src/lib/blocks/BlockRenderer.svelte` maps the active structured block types to Svelte components.
+- `src/lib/generated/images.js` maps static paths to image dimensions, aspect ratios, source hashes, and embedded LQIPs.
+- `scripts/generate-image-metadata.mjs` uses `sharp` to keep metadata deterministic and generate WebP LQIPs for new or changed raster images.
 
-## Key Modules
+## Routes and SEO
 
-### Routing (`src/routes`)
+- Route loaders import local modules; they do not call Laravel.
+- The dedicated project route validates the slug and throws a SvelteKit 404 when it is unknown.
+- The project list panel and dedicated route both render `project.blocks` through `BlockRenderer`.
+- `Seo.svelte` receives local page/project metadata and the route's canonical path.
+- `/sitemap.xml` builds XML from the fixed public paths and canonical project registry.
+- `/cv` redirects to the static CV file.
 
-- `/` uses `src/routes/+page.js` to fetch `/home` and `+page.svelte` to render home content.
-- `/projects` uses `src/routes/projects/+page.server.js` to fetch `/projects` and `+page.svelte` to render the project grid and panel behavior.
-- `/projects/[slug]` uses server loading with 404 handling and standalone article rendering.
-- `/about` fetches `/about` and renders API-provided article content.
-- `/contact` renders a contact form and posts data to `/send-email`.
-- `/cv` is a server endpoint that redirects to the configured CV URL.
-- `/sitemap.xml` proxies XML from the backend API.
+## State and UX
 
-## Component Patterns
+- `src/store.js` contains only `panelOpen`, `panelData`, and `theme`.
+- `src/panel.js` controls panel body classes and title; the projects route retains its history behavior.
+- `src/lazy-loading.js` and the lazy-loading components preserve blur placeholders, fade-in, and eager/lazy behavior.
+- Theme initialization remains in `MainLayout.svelte`; Tailwind uses the existing class-based dark mode.
 
-- `MainLayout.svelte` wraps page content, imports global CSS, renders header/footer navigation, lazy loading, and the project detail panel container.
-- `Seo.svelte` centralizes `<svelte:head>` title, description, author, and Open Graph tags.
-- `PageHeader.svelte` provides reusable page heading presentation.
-- `ThemeToggle.svelte` provides the reusable light/dark mode switch used in the top navigation.
-- `MessageBox.svelte` is used for user feedback on copy/contact actions.
-- `LazyLoading.svelte` starts global lazy-loading behavior on mount in the browser.
-- `LazyLoadingWrapper.svelte` wraps images with LQIP support.
+## Contact
 
-## State Management
-
-State is managed with Svelte writable stores in `src/store.js`:
-
-```js
-export const panelOpen = writable(false);
-export const panelData = writable({content: ''});
-export const settings = writable(null);
-export const cache = writable(null);
-export const theme = writable('light');
-```
-
-Global settings, panel state, and theme state are consumed across routes/components.
-
-## Theme Pattern
-
-- Tailwind dark mode is configured with `darkMode: 'class'` in `tailwind.config.cjs`.
-- The active theme is represented by the `theme` writable store in `src/store.js`.
-- `src/theme.js` exports:
-  - `initTheme()` to read `localStorage.theme`, fall back to `prefers-color-scheme: dark`, apply the `dark` class to `<html>`, and update the store.
-  - `toggleTheme()` to switch between `light` and `dark`, persist the choice, apply the class, and update the store.
-- `src/app.html` contains a small inline script that applies the initial `<html class="dark">` state before Svelte hydrates, reducing theme flash.
-- `MainLayout.svelte` initializes the theme on mount and renders `ThemeToggle.svelte` at the far right of the header navigation. The toggle wrapper is absolutely positioned inside the relative header so it does not affect the normal flex layout or shift nav links.
-- `ThemeToggle.svelte` owns the global icon-only sun/moon pill switch. The switch uses inline SVG icons, `aria-label`, and `aria-pressed` while reusing `toggleTheme()`.
-- Component-level styling uses Tailwind `dark:*` variants where possible.
-- Because the project uses Tailwind `^3.1.8`, use supported color shades such as `neutral-900`; do not use newer shades like `neutral-950` unless Tailwind is upgraded.
-- Backend-rendered `{@html ...}` content is supported by global dark-mode CSS fallbacks in `src/style.css`, especially for article content, block image frames, gray text, borders, and nav/link underline colors.
-- Global dark-mode background fallbacks are defined for `.dark`, `.dark body`, `.dark .content`, `.dark .content header`, and `.dark .inner-panel` to prevent light backgrounds from remaining when dark text styles apply.
-- The wide-screen right sidebar is the body background revealed by the max-width `.content` wrapper with `mr-auto`. In dark mode, keep body background `#111111` and content background `#171717` so the sidebar remains visible.
-- Current dark palette uses `#dddad6` for main text and line/border colors, `#9e9589` for muted `.text-gray-500` equivalents, `#181a1b` for main content surfaces, and `#111111` for the body/right-sidebar background.
-
-## Panel Pattern
-
-`src/panel.js` exports `usePanel()`, which provides `openPanel` and `closePanel`.
-
-- Opening the panel:
-  - Adds `html-panel` and `noscroll` classes to `document.body`.
-  - Sets `document.title` from `panelDataValue.title`.
-  - Sets `panelOpen` to `true`.
-- Closing the panel:
-  - Clears `panelData`.
-  - Removes body classes.
-  - Resets `panelOpen` to `false`.
-  - Restores document title to `Projects | Armin Salihović`.
-
-The projects route uses SvelteKit navigation hooks and browser history to intercept navigation to project detail routes and show details in the panel.
-
-## API Integration Pattern
-
-API calls use `PUBLIC_API_BASE_URL` from `$env/static/public` and SvelteKit `fetch`.
-
-Common endpoints:
-
-- `/settings`
-- `/cache`
-- `/home`
-- `/about`
-- `/projects`
-- `/projects/:slug`
-- `/send-email`
-- `/sitemap.xml`
-
-## Styling Pattern
-
-- Tailwind CSS is configured in `tailwind.config.cjs` with class-based dark mode and content scanning over `./src/**/*.{html,js,svelte,ts}`.
-- Custom screens:
-  - `xs: 475px`
-  - `3xl: 1921px`
-  - `4xl: 2561px`
-- Global styles are imported in `MainLayout.svelte` from `src/app.css` and `src/style.css`.
+- The browser submits to `/api/contact` only on form submission.
+- The server validates inputs and honeypot, then calls the Resend API with server-only environment values.
+- Missing provider configuration returns a structured 503 response.
