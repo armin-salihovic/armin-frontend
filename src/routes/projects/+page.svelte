@@ -116,7 +116,7 @@
             {/each}
             <div class="odd:hidden even:flex justify-center items-center">
                 <LazyLoadingWrapper lqip="" class="hidden lg:block mb-3 3xl:mb-4 4xl:mb-6">
-                    <img alt="logo-2" src="/img/logo_4.3.1_favicon_1.0.svg" style="height: 86px; aspect-ratio: 1/1"/>
+                    <img class="dark:invert" alt="logo-2" src="/img/logo_4.3.1_favicon_1.0.svg" style="height: 86px; aspect-ratio: 1/1"/>
                 </LazyLoadingWrapper>
             </div>
         </article>
