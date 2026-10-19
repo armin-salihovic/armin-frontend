@@ -1,6 +1,11 @@
 <script>
     import MainLayout from "../../../components/MainLayout.svelte";
     import Seo from "../../../components/Seo.svelte";
+    import {page} from '$app/stores';
+    import {localizedPath} from '../../../lib/locale.js';
+    import {translate} from '../../../lib/i18n.js';
+
+    $: locale = data.locale || $page.data.locale || 'en';
 
     /** @type {import('./$types').PageData} */
     export let data;
@@ -8,6 +13,7 @@
 
 <MainLayout>
     <Seo title="{data.data.title + ' | Armin Salihović'}" metaDescription="{data.data.description}" ogImg="{data.data.image}" />
+    <a class="block px-6 pt-6 sm:px-12 link-underline" href={localizedPath('/projects', locale)}>{translate(locale, 'project.back')}</a>
     <article class="article-content">
         {@html data.data.content}
     </article>

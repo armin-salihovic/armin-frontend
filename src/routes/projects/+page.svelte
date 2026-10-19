@@ -1,99 +1,99 @@
 <script>
     import PageHeader from "../../components/PageHeader.svelte";
     import MainLayout from "../../components/MainLayout.svelte";
-    import {beforeNavigate} from "$app/navigation";
-    import {afterUpdate, onMount} from "svelte";
+    import {afterUpdate, onDestroy, onMount} from "svelte";
     import {page} from "$app/stores";
-    import {browser} from "$app/environment";
     import {usePanel} from "../../panel.js";
-    import {panelData, panelOpen, settings} from "../../store.js";
+    import {panelData, panelOpen} from "../../store.js";
     import Seo from "../../components/Seo.svelte";
-    import {PUBLIC_API_BASE_URL} from '$env/static/public';
     import LazyLoadingWrapper from "../../components/LazyLoadingWrapper.svelte";
     import {useLazyLoading} from "../../lazy-loading.js";
+    import {localizedApiJson} from '../../lib/api.js';
+    import {localizedPath} from '../../lib/locale.js';
+    import {translate} from '../../lib/i18n.js';
 
     /** @type {import('./$types').PageData} */
     export let data;
 
-    let projects = [];
-
-    if(browser) { document.body.classList.add('relative') }
-
+    $: locale = data.locale || $page.data.locale || 'en';
+    $: settings = $page.data.settings || {};
     const {closePanel, openPanel} = usePanel();
     const lazyLoading = useLazyLoading();
+    const projectCache = new Map();
 
     async function getProject(path) {
-        let project = projects.find((project) => project.path === path);
-
-        if(project) {
-            return project;
-        }
-
+        const cacheKey = `${locale}:${path}`;
+        if (projectCache.has(cacheKey)) return projectCache.get(cacheKey);
         try {
-            const projectReq = await fetch(`${PUBLIC_API_BASE_URL}${path}`);
-            project = await projectReq.json();
-            projects = [...projects, {path: path, ...project.data}]
-            return project.data;
-        } catch(e) {
-            console.log(e);
-            return null;
+            const response = await localizedApiJson(fetch, path, locale);
+            const project = response.data;
+            projectCache.set(cacheKey, project);
+            return project;
+        } catch {
+            const unavailable = {
+                title: translate(locale, 'project.unavailable'),
+                content: `<p>${translate(locale, 'project.unavailable')}</p>`
+            };
+            projectCache.set(cacheKey, unavailable);
+            return unavailable;
         }
     }
 
-    let stop = false;
+    async function showProject(path) {
+        panelData.set(await getProject(`/projects/${encodeURIComponent(path)}`));
+        openPanel();
+    }
 
-    beforeNavigate(async ({ from, to, cancel, type }) => {
-        const regex = new RegExp(/\/projects\/.+/g);
-
-        if (from !== null && to !== null) {
-            if(window.location.pathname !== $page.url.pathname) {
-                stop = true;
-            } else if(type==='popstate' && to.routeId === "projects/[slug]" && window.location.pathname === '/projects/pick-and-fix') {
-                cancel();
-                panelData.set(await getProject(`/projects/${to.params.slug}`));
-                openPanel();
-            } else if (from.routeId === "projects" && to.routeId === "projects/[slug]" && !regex.test(window.location.pathname)) {
-                cancel();
-                window.history.pushState(window.history.state, '', `projects/${to.params.slug}`)
-                panelData.set(await getProject(`/projects/${to.params.slug}`));
-                openPanel();
-            }
+    async function openProject(event, slug) {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        const nextPath = localizedPath(`/projects/${encodeURIComponent(slug)}`, locale);
+        if (window.location.pathname !== nextPath) {
+            window.history.pushState(window.history.state, '', nextPath);
+            window.dispatchEvent(new Event('app-path-change'));
         }
+        await showProject(slug);
+    }
+
+    async function syncHistory() {
+        const listPath = localizedPath('/projects', locale);
+        const pathname = window.location.pathname;
+        if (pathname.startsWith(`${listPath}/`)) {
+            const slug = decodeURIComponent(pathname.slice(listPath.length + 1));
+            if (slug && !slug.includes('/')) await showProject(slug);
+        } else if (pathname === listPath || pathname === `${listPath}/`) {
+            closePanel(translate(locale, 'nav.projects'));
+        }
+    }
+
+    onMount(() => {
+        document.body.classList.add('relative');
+        window.addEventListener('popstate', syncHistory);
+        if (window.location.pathname.startsWith(`${localizedPath('/projects', locale)}/`)) {
+            syncHistory();
+        }
+        return () => window.removeEventListener('popstate', syncHistory);
     });
 
-    onMount(()=> {
-        onpopstate = async () => {
-            if(stop) return;
-
-            const regex = new RegExp(/\/projects\/.+/g);
-
-            if (regex.test(window.location.pathname)) {
-                panelData.set(await getProject(window.location.pathname));
-
-                openPanel();
-            } else {
-                closePanel();
-            }
-        };
-    })
+    onDestroy(() => closePanel(translate(locale, 'nav.projects')));
 
     afterUpdate(() => {
-        if (browser && panelOpen) {
+        if ($panelOpen) {
             lazyLoading.start();
         }
     })
 </script>
 <MainLayout>
     <div class="p-6 sm:px-12 3xl:px-16 4xl:px-24">
-        <Seo title="{$settings['projects_meta_title']}" metaDescription="{$settings['projects_meta_description']}" ogImg="{$settings['projects_og']}" />
-        <PageHeader title="Projects" />
+        <Seo title="{settings['projects_meta_title']}" metaDescription="{settings['projects_meta_description']}" ogImg="{settings['projects_og']}" />
+        <PageHeader title={translate(locale, 'nav.projects')} />
         <article class="projects-list leading-normal grid grid-cols-1 lg:grid-cols-2 gap-10 3xl:gap-12 4xl:gap-20 pb-10 3xl:pb-12 4xl:pb-20">
             {#each data['data'] as project}
-                <a href="projects/{project['slug']}">
+                <a href={localizedPath(`/projects/${encodeURIComponent(project.slug)}`, locale)} on:click={(event) => openProject(event, project.slug)}>
                     <LazyLoadingWrapper class="hidden lg:block mb-3 3xl:mb-4 4xl:mb-6" lqip="{project['image_lqpi']}">
                         <img
                             src="{project['image']}"
-                            alt="{project['title']}"
+                            alt={translate(locale, 'project.image', {title: project.title})}
                             style="aspect-ratio:{project['aspect_ratio']};"
                             loading="lazy"
                         >
@@ -101,7 +101,7 @@
                     <LazyLoadingWrapper class="lg:hidden mb-3 3xl:mb-4 4xl:mb-6" lqip="{project['image_lqpi_mobile']}">
                         <img
                             src="{project['image_mobile']}"
-                            alt="{project['title']}"
+                            alt={translate(locale, 'project.image', {title: project.title})}
                             style="aspect-ratio:1/1;"
                             loading="lazy"
                         >
@@ -116,7 +116,7 @@
             {/each}
             <div class="odd:hidden even:flex justify-center items-center">
                 <LazyLoadingWrapper lqip="" class="hidden lg:block mb-3 3xl:mb-4 4xl:mb-6">
-                    <img class="dark:invert" alt="logo-2" src="/img/logo_4.3.1_favicon_1.0.svg" style="height: 86px; aspect-ratio: 1/1"/>
+                    <img class="dark:invert" alt="" src="/img/logo_4.3.1_favicon_1.0.svg" style="height: 86px; aspect-ratio: 1/1"/>
                 </LazyLoadingWrapper>
             </div>
         </article>

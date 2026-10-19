@@ -11,13 +11,13 @@ panelData.subscribe((value) => {
     panelDataValue = value;
 })
 
-function closePanel() {
+function closePanel(projectsTitle = 'Projects') {
     if(panelOpenValue) {
         panelData.set({content: ''});
         document.body.classList.remove('html-panel')
         document.body.classList.remove('noscroll')
         panelOpen.set(false);
-        document.title = "Projects | Armin Salihović";
+        document.title = `${projectsTitle} | Armin Salihović`;
     }
 }
 

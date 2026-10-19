@@ -1,15 +1,9 @@
-import {settings} from "../store.js";
-import {PUBLIC_API_BASE_URL} from '$env/static/public';
+import { localizedApiJson } from '../lib/api.js';
+import { localeFromPath } from '../lib/locale.js';
 
-export async function load({fetch}) {
-    let settingsValue;
+export async function load({ fetch, url }) {
+    const locale = localeFromPath(url.pathname);
+    const settings = await localizedApiJson(fetch, '/settings', locale);
 
-    settings.subscribe((value) => {
-        settingsValue = value;
-    })
-
-    if(settingsValue === null) {
-        const settingsRequest = await fetch(`${PUBLIC_API_BASE_URL}/settings`);
-        settings.set(await settingsRequest.json());
-    }
+    return { locale, settings };
 }

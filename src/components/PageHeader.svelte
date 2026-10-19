@@ -1,9 +1,9 @@
 <div class="flex pb-16 pt-6 sm:justify-center sm:py-36 3xl:py-48 4xl:py-72 sm:grid sm:grid-cols-6">
         <div style="{$panelOpen ? '' : 'display: none'}" class="hidden sm:block sm:col-span-2 mt-2.5 4xl:mt-5 invert">
-            <a href="/" ><img class="page-header-logo inline-block" src="/img/logo_4.3.1_favicon_1.0.svg" alt="logo"></a>
+            <a href={localizedPath('/', locale)}><img class="page-header-logo inline-block" src="/img/logo_4.3.1_favicon_1.0.svg" alt={translate(locale, 'a11y.logo')}></a>
         </div>
         <div style="{!$panelOpen ? '' : 'display: none'}" class="hidden sm:block sm:col-span-2 mt-2.5 4xl:mt-5 dark:invert">
-            <a href="/"><img class="page-header-logo inline-block" src="/img/logo_4.3.1_favicon_1.0.svg" alt="logo"></a>
+            <a href={localizedPath('/', locale)}><img class="page-header-logo inline-block" src="/img/logo_4.3.1_favicon_1.0.svg" alt={translate(locale, 'a11y.logo')}></a>
         </div>
     <h1 class="text-5xl sm:text-7xl lg:text-8xl 3xl:text-9xl 4xl:text-[12rem] flex flex-col whitespace-pre fw-600 sm:col-span-4 leading-none"><span>{@html title}</span></h1>
 </div>
@@ -11,6 +11,10 @@
 <script>
     export let title;
     import {panelOpen} from "../store.js";
+    import {page} from '$app/stores';
+    import {localizedPath} from '../lib/locale.js';
+    import {translate} from '../lib/i18n.js';
+    $: locale = $page.data.locale || 'en';
 </script>
 
 <style>

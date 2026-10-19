@@ -1,13 +1,15 @@
 <script>
     import {theme} from "../store.js";
     import {toggleTheme} from "../theme.js";
+    import {translate} from "../lib/i18n.js";
+    export let locale = 'en';
 </script>
 
 <button
     class="theme-switch flex items-center leading-none"
     class:theme-switch-dark={$theme === 'dark'}
     on:click={toggleTheme}
-    aria-label="Switch to {$theme === 'dark' ? 'light' : 'dark'} mode"
+    aria-label={translate(locale, $theme === 'dark' ? 'theme.switchToLight' : 'theme.switchToDark')}
     aria-pressed={$theme === 'dark'}
 >
     <span class="theme-switch__track" aria-hidden="true">

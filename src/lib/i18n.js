@@ -1,0 +1,115 @@
+const dictionaries = {
+    en: {
+        'nav.projects': 'Projects',
+        'nav.about': 'About',
+        'nav.contact': 'Contact',
+        'nav.language': 'Language',
+        'theme.switchToLight': 'Switch to light mode',
+        'theme.switchToDark': 'Switch to dark mode',
+        'home.greeting': "Hello, <br>I'm Armin",
+        'home.copied': 'Copied to clipboard',
+        'home.logo': 'Armin Salihović home',
+        'home.github': 'GitHub profile',
+        'home.linkedin': 'LinkedIn profile',
+        'home.email': 'Send Armin an email',
+        'home.discord': 'Copy Discord username',
+        'social.github': 'GitHub',
+        'social.linkedin': 'LinkedIn',
+        'panel.article': 'Article',
+        'panel.close': 'Close',
+        'panel.closeLabel': 'Close project details',
+        'project.image': 'Project image: {title}',
+        'project.unavailable': 'This project is currently unavailable.',
+        'project.back': 'Back to projects',
+        'contact.title': 'Contact',
+        'contact.intro': 'Write me a message!',
+        'contact.name': 'Name',
+        'contact.email': 'Email',
+        'contact.subject': 'Subject',
+        'contact.message': 'Message',
+        'contact.send': 'Send',
+        'contact.sending': 'Sending…',
+        'contact.nameRequired': 'Name is required',
+        'contact.emailRequired': 'Email is required',
+        'contact.emailInvalid': 'Value is not a valid email address',
+        'contact.subjectRequired': 'Subject is required',
+        'contact.messageRequired': 'Message is required',
+        'contact.sentTitle': 'Message Sent!',
+        'contact.sentThanks': 'Thanks for reaching out!',
+        'contact.sentFollowup': "I'll get back to you as soon as possible! :)",
+        'contact.errorTitle': 'Error!',
+        'contact.serverError': 'Unexpected Server Error',
+        'contact.serverErrorBody': "Oops... This is embarrassing... :(",
+        'contact.emailDirectly': 'Please email me directly at',
+        'error.notFoundTitle': 'Page not found',
+        'error.notFoundMessage': "Sorry, the page you're looking for is unavailable.",
+        'error.genericMessage': 'Something went wrong. Please try again later.',
+        'a11y.logo': 'Armin Salihović logo',
+        'a11y.closeMessage': 'Close message',
+        'a11y.loading': 'Loading'
+    },
+    de: {
+        'nav.projects': 'Projekte',
+        'nav.about': 'Über mich',
+        'nav.contact': 'Kontakt',
+        'nav.language': 'Sprache',
+        'theme.switchToLight': 'Helles Design aktivieren',
+        'theme.switchToDark': 'Dunkles Design aktivieren',
+        'home.greeting': 'Hallo, <br>ich bin Armin',
+        'home.copied': 'In die Zwischenablage kopiert',
+        'home.logo': 'Zur Startseite von Armin Salihović',
+        'home.github': 'GitHub-Profil',
+        'home.linkedin': 'LinkedIn-Profil',
+        'home.email': 'Armin eine E-Mail senden',
+        'home.discord': 'Discord-Benutzernamen kopieren',
+        'social.github': 'GitHub',
+        'social.linkedin': 'LinkedIn',
+        'panel.article': 'Artikel',
+        'panel.close': 'Schließen',
+        'panel.closeLabel': 'Projektdetails schließen',
+        'project.image': 'Projektbild: {title}',
+        'project.unavailable': 'Dieses Projekt ist derzeit nicht verfügbar.',
+        'project.back': 'Zurück zu den Projekten',
+        'contact.title': 'Kontakt',
+        'contact.intro': 'Schreib mir eine Nachricht!',
+        'contact.name': 'Name',
+        'contact.email': 'E-Mail',
+        'contact.subject': 'Betreff',
+        'contact.message': 'Nachricht',
+        'contact.send': 'Senden',
+        'contact.sending': 'Wird gesendet…',
+        'contact.nameRequired': 'Bitte gib deinen Namen ein.',
+        'contact.emailRequired': 'Bitte gib deine E-Mail-Adresse ein.',
+        'contact.emailInvalid': 'Bitte gib eine gültige E-Mail-Adresse ein.',
+        'contact.subjectRequired': 'Bitte gib einen Betreff ein.',
+        'contact.messageRequired': 'Bitte gib eine Nachricht ein.',
+        'contact.sentTitle': 'Nachricht gesendet!',
+        'contact.sentThanks': 'Danke für deine Nachricht!',
+        'contact.sentFollowup': 'Ich melde mich so bald wie möglich bei dir. :)',
+        'contact.errorTitle': 'Fehler!',
+        'contact.serverError': 'Unerwarteter Serverfehler',
+        'contact.serverErrorBody': 'Hoppla… Das ist mir unangenehm. :(',
+        'contact.emailDirectly': 'Schreib mir direkt an',
+        'error.notFoundTitle': 'Seite nicht gefunden',
+        'error.notFoundMessage': 'Die gesuchte Seite ist leider nicht verfügbar.',
+        'error.genericMessage': 'Etwas ist schiefgelaufen. Bitte versuche es später erneut.',
+        'a11y.logo': 'Logo von Armin Salihović',
+        'a11y.closeMessage': 'Nachricht schließen',
+        'a11y.loading': 'Wird geladen'
+    }
+};
+
+const englishKeys = Object.keys(dictionaries.en).sort();
+const germanKeys = Object.keys(dictionaries.de).sort();
+if (englishKeys.join('|') !== germanKeys.join('|')) {
+    throw new Error('Translation dictionaries must have matching keys.');
+}
+
+export function translate(locale, key, values = {}) {
+    const message = dictionaries[locale]?.[key];
+    if (message === undefined) {
+        throw new Error(`Missing translation "${key}" for locale "${locale}".`);
+    }
+
+    return message.replace(/\{(\w+)\}/g, (_, name) => values[name] ?? `{${name}}`);
+}

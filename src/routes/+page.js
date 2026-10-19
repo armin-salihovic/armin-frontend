@@ -1,7 +1,5 @@
-import {PUBLIC_API_BASE_URL} from '$env/static/public';
+import { loadLocalizedContent } from '../lib/api.js';
 
-export async function load({fetch}) {
-    const request = await fetch(`${PUBLIC_API_BASE_URL}/home`);
-
-    return await request.json();
+export async function load(event) {
+    return loadLocalizedContent(event, '/home');
 }
