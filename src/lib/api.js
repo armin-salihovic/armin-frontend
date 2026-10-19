@@ -21,18 +21,70 @@ export async function localizedApiJson(fetchFn, endpoint, locale) {
     return response.json();
 }
 
+async function localizedCounterpart(fetchFn, endpoint, locale) {
+    const otherLocale = locale === 'de' ? 'en' : 'de';
+    try {
+        const response = await localizedApiFetch(fetchFn, endpoint, otherLocale);
+        if (!response.ok || response.redirected) return null;
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+export async function localizedAvailability(fetchFn, endpoint, locale) {
+    const otherLocale = locale === 'de' ? 'en' : 'de';
+    const counterpart = await localizedCounterpart(fetchFn, endpoint, locale);
+    return counterpart === null ? [locale] : [locale, otherLocale];
+}
+
+function projectSlugs(payload) {
+    if (!Array.isArray(payload?.data)) return [];
+    return [...new Set(payload.data
+        .map((project) => project?.slug)
+        .filter((slug) => typeof slug === 'string' && slug.trim()))];
+}
+
 export async function loadLocalizedContent({ fetch, url }, endpoint) {
     const locale = localeFromPath(url.pathname);
-    return {
-        ...(await localizedApiJson(fetch, endpoint, locale)),
-        locale
+    const otherLocale = locale === 'de' ? 'en' : 'de';
+    const [content, counterpart] = await Promise.all([
+        localizedApiJson(fetch, endpoint, locale),
+        localizedCounterpart(fetch, endpoint, locale)
+    ]);
+    const availableLocales = counterpart === null ? [locale] : [locale, otherLocale];
+    const result = {
+        ...content,
+        locale,
+        availableLocales
     };
+
+    if (endpoint === '/projects') {
+        result.projectSlugsByLocale = {
+            [locale]: projectSlugs(content),
+            [otherLocale]: projectSlugs(counterpart)
+        };
+    }
+
+    return result;
 }
 
 export async function loadLocalizedProject({ params, fetch, url }) {
     const locale = localeFromPath(url.pathname);
+    const otherLocale = locale === 'de' ? 'en' : 'de';
+    const endpoint = `/projects/${encodeURIComponent(params.slug)}`;
+    const [content, counterpart] = await Promise.all([
+        localizedApiJson(fetch, endpoint, locale),
+        localizedCounterpart(fetch, endpoint, locale)
+    ]);
+    const availableLocales = counterpart === null ? [locale] : [locale, otherLocale];
     return {
-        ...(await localizedApiJson(fetch, `/projects/${encodeURIComponent(params.slug)}`, locale)),
-        locale
+        ...content,
+        locale,
+        availableLocales,
+        projectSlugsByLocale: {
+            [locale]: [params.slug],
+            [otherLocale]: counterpart === null ? [] : [params.slug]
+        }
     };
 }

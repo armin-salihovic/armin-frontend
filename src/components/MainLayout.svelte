@@ -63,6 +63,9 @@
 
     $: locale = $page.data.locale || localeFromPath($page.url.pathname);
     $: settings = $page.data.settings || {};
+    $: isContactRoute = $page.url.pathname === localizedPath('/contact', locale);
+    $: availableLocales = $page.data.availableLocales || (isContactRoute ? ['en', 'de'] : [locale]);
+    $: projectSlugsByLocale = $page.data.projectSlugsByLocale || {};
     $: links = [
         {key: 'nav.projects', route: '/projects'},
         {key: 'nav.about', route: '/about'},
@@ -108,7 +111,7 @@
                 <a href={localizedPath('/', locale)}><img class="logo dark:invert" src="/img/logo_4.3.1.svg" alt={translate(locale, 'a11y.logo')}></a>
                 <div class="flex items-center gap-4">
                     <ThemeToggle {locale} />
-                    <LanguageSwitcher {locale} />
+                    <LanguageSwitcher {locale} {availableLocales} {projectSlugsByLocale} />
                 </div>
             </div>
             <div class="text-lg flex flex-col sm:w-4/6 sm:flex-row justify-start sm:text-xl 3xl:text-3xl 4xl:text-4xl sm:leading-none gap-5 3xl:gap-7 4xl:gap-10">
@@ -118,7 +121,7 @@
             </div>
             <div class="hidden sm:block absolute right-6 sm:right-12 3xl:right-16 4xl:right-24 top-6 sm:top-1/2 sm:-translate-y-1/2">
                 <div class="flex items-center gap-4">
-                    <LanguageSwitcher {locale} />
+                    <LanguageSwitcher {locale} {availableLocales} {projectSlugsByLocale} />
                     <ThemeToggle {locale} />
                 </div>
             </div>

@@ -10,7 +10,7 @@
 
 <MainLayout>
     <div>
-        <Seo title="{settings['about_meta_title']}" metaDescription="{settings['about_meta_description']}" ogImg="{settings['about_og']}" />
+        <Seo title="{settings['about_meta_title']}" metaDescription="{settings['about_meta_description']}" ogImg="{settings['about_og']}" availableLocales={data.availableLocales} />
         <article class="article-content">
             {@html data.data.content}
         </article>

@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { localeFromPath, localizedPath } from '../src/lib/locale.js';
+import { localeFromPath, localizedPath, projectAvailableInLocale } from '../src/lib/locale.js';
 import { localizedApiUrl } from '../src/lib/api-url.js';
 import { translate } from '../src/lib/i18n.js';
 import { transformHtmlLang } from '../src/hooks.server.js';
+import { buildSitemapXml, canonicalUrl, createSitemapEntries, hasSitemapSourceFailure, isSitemapPayload, localizedAlternates } from '../src/lib/seo.js';
 
 test('English routes remain unprefixed and German routes receive /de', () => {
     const paths = ['/', '/about', '/contact', '/projects', '/projects/pick-and-fix'];
@@ -59,4 +60,65 @@ test('content and settings API requests include the route locale', () => {
     assert.equal(localizedApiUrl(base, '/settings', 'en'), 'https://api.example.test/api/settings?locale=en');
     assert.equal(localizedApiUrl(base, '/projects/demo', 'en'), 'https://api.example.test/api/projects/demo?locale=en');
     assert.equal(localizedApiUrl(base, '/projects/demo', 'de'), 'https://api.example.test/api/projects/demo?locale=de');
+});
+
+test('canonical and Open Graph URL helpers keep the current page path', () => {
+    assert.equal(canonicalUrl('/'), 'https://www.armin.ba/');
+    assert.equal(canonicalUrl('/about/?preview=1'), 'https://www.armin.ba/about');
+    assert.equal(canonicalUrl('/de/projects/pick-and-fix'), 'https://www.armin.ba/de/projects/pick-and-fix');
+});
+
+test('language alternates include only available translations', () => {
+    assert.deepEqual(localizedAlternates('/projects/demo', ['en']), [
+        {locale: 'en', url: 'https://www.armin.ba/projects/demo'}
+    ]);
+    assert.deepEqual(localizedAlternates('/de/projects/demo', ['de', 'en']), [
+        {locale: 'en', url: 'https://www.armin.ba/projects/demo'},
+        {locale: 'de', url: 'https://www.armin.ba/de/projects/demo'}
+    ]);
+});
+
+test('language switching does not offer an unpublished project translation', () => {
+    const projectSlugsByLocale = {en: ['english-only', 'shared-project'], de: ['shared-project']};
+    assert.equal(projectAvailableInLocale('/projects/english-only', projectSlugsByLocale, 'de'), false);
+    assert.equal(projectAvailableInLocale('/de/projects/shared-project', projectSlugsByLocale, 'en'), true);
+    assert.equal(projectAvailableInLocale('/projects', projectSlugsByLocale, 'de'), null);
+});
+
+test('sitemap includes published project locales and reciprocal alternates without /en URLs', () => {
+    const entries = createSitemapEntries({
+        home: ['en', 'de'],
+        about: ['en'],
+        contact: ['en', 'de'],
+        projects: ['en', 'de']
+    }, {
+        en: ['english-only', 'shared-project'],
+        de: ['shared-project']
+    });
+    const xml = buildSitemapXml(entries);
+
+    assert.match(xml, /<loc>https:\/\/www\.armin\.ba\/projects\/english-only<\/loc>/);
+    assert.doesNotMatch(xml, /https:\/\/www\.armin\.ba\/de\/projects\/english-only/);
+    assert.doesNotMatch(xml, /https:\/\/www\.armin\.ba\/de\/about/);
+    assert.match(xml, /<loc>https:\/\/www\.armin\.ba\/de\/projects\/shared-project<\/loc>/);
+    assert.match(xml, /hreflang="en" href="https:\/\/www\.armin\.ba\/projects\/shared-project"/);
+    assert.match(xml, /hreflang="de" href="https:\/\/www\.armin\.ba\/de\/projects\/shared-project"/);
+    assert.doesNotMatch(xml, /https:\/\/www\.armin\.ba\/en\//);
+});
+
+test('sitemap generation distinguishes missing translations from API outages', () => {
+    const missingGermanTranslation = {status: 404, available: false};
+    const missingEnglishPage = {status: 404, available: false};
+    const apiOutage = {status: 0, available: false};
+    assert.equal(hasSitemapSourceFailure({en: {home: {status: 200, available: true}}, de: {home: missingGermanTranslation}}), false);
+    assert.equal(hasSitemapSourceFailure({en: {home: missingEnglishPage}, de: {home: missingGermanTranslation}}), true);
+    assert.equal(hasSitemapSourceFailure({en: {home: {status: 200, available: true}}, de: {home: apiOutage}}), true);
+});
+
+test('sitemap accepts only API payload shapes required by the route loaders', () => {
+    assert.equal(isSitemapPayload('/home', {data: {title: 'Home', content: '<p>Hi</p>'}}), true);
+    assert.equal(isSitemapPayload('/about', {data: {content: '<p>About</p>'}}), true);
+    assert.equal(isSitemapPayload('/about', {data: {title: 'About'}}), false);
+    assert.equal(isSitemapPayload('/projects', {data: [{slug: 'demo'}]}), true);
+    assert.equal(isSitemapPayload('/projects', {data: [{title: 'Missing slug'}]}), false);
 });

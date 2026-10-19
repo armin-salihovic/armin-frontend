@@ -190,7 +190,7 @@
 
 <MainLayout>
     <div class="p-6 sm:px-12 3xl:px-16 4xl:px-24">
-        <Seo title="{settings['contact_meta_title']}" metaDescription="{settings['contact_meta_description']}" ogImg="{settings['contact_og']}" />
+        <Seo title="{settings['contact_meta_title']}" metaDescription="{settings['contact_meta_description']}" ogImg="{settings['contact_og']}" availableLocales={['en', 'de']} />
         <PageHeader title={translate(locale, 'contact.title')} />
         <div class="flex pb-16 3xl:pb-20 4xl:pb-32 grid grid-cols-6 text-base md:text-lg 3xl:text-2xl 4xl:text-3xl gap-4 3xl:gap-5 4xl:gap-8">
             <aside class="md:col-span-2 col-span-6">

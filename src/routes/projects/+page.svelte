@@ -3,12 +3,13 @@
     import MainLayout from "../../components/MainLayout.svelte";
     import {afterUpdate, onDestroy, onMount} from "svelte";
     import {page} from "$app/stores";
+    import {goto} from "$app/navigation";
     import {usePanel} from "../../panel.js";
     import {panelData, panelOpen} from "../../store.js";
     import Seo from "../../components/Seo.svelte";
     import LazyLoadingWrapper from "../../components/LazyLoadingWrapper.svelte";
     import {useLazyLoading} from "../../lazy-loading.js";
-    import {localizedApiJson} from '../../lib/api.js';
+    import {localizedApiJson, localizedAvailability} from '../../lib/api.js';
     import {localizedPath} from '../../lib/locale.js';
     import {translate} from '../../lib/i18n.js';
 
@@ -20,19 +21,33 @@
     const {closePanel, openPanel} = usePanel();
     const lazyLoading = useLazyLoading();
     const projectCache = new Map();
+    let activeProjectSlug = null;
+    let activeProject = null;
+    let activeProjectRequest = 0;
+    let previousLocale;
+
+    $: if (previousLocale && previousLocale !== locale) {
+        activeProjectRequest += 1;
+        activeProjectSlug = null;
+        activeProject = null;
+        closePanel(translate(locale, 'nav.projects'));
+    }
+    $: previousLocale = locale;
 
     async function getProject(path) {
         const cacheKey = `${locale}:${path}`;
         if (projectCache.has(cacheKey)) return projectCache.get(cacheKey);
         try {
             const response = await localizedApiJson(fetch, path, locale);
-            const project = response.data;
+            const availableLocales = await localizedAvailability(fetch, path, locale);
+            const project = {...response.data, availableLocales, available: true};
             projectCache.set(cacheKey, project);
             return project;
         } catch {
             const unavailable = {
                 title: translate(locale, 'project.unavailable'),
-                content: `<p>${translate(locale, 'project.unavailable')}</p>`
+                content: `<p>${translate(locale, 'project.unavailable')}</p>`,
+                available: false
             };
             projectCache.set(cacheKey, unavailable);
             return unavailable;
@@ -40,7 +55,17 @@
     }
 
     async function showProject(path) {
-        panelData.set(await getProject(`/projects/${encodeURIComponent(path)}`));
+        const requestId = ++activeProjectRequest;
+        const requestedPath = localizedPath(`/projects/${encodeURIComponent(path)}`, locale);
+        const project = await getProject(`/projects/${encodeURIComponent(path)}`);
+        if (requestId !== activeProjectRequest || window.location.pathname !== requestedPath) return;
+        if (!project.available) {
+            await goto(requestedPath);
+            return;
+        }
+        activeProjectSlug = path;
+        activeProject = project;
+        panelData.set(project);
         openPanel();
     }
 
@@ -62,6 +87,9 @@
             const slug = decodeURIComponent(pathname.slice(listPath.length + 1));
             if (slug && !slug.includes('/')) await showProject(slug);
         } else if (pathname === listPath || pathname === `${listPath}/`) {
+            activeProjectRequest += 1;
+            activeProjectSlug = null;
+            activeProject = null;
             closePanel(translate(locale, 'nav.projects'));
         }
     }
@@ -85,7 +113,17 @@
 </script>
 <MainLayout>
     <div class="p-6 sm:px-12 3xl:px-16 4xl:px-24">
-        <Seo title="{settings['projects_meta_title']}" metaDescription="{settings['projects_meta_description']}" ogImg="{settings['projects_og']}" />
+        {#if !activeProjectSlug}
+            <Seo title="{settings['projects_meta_title']}" metaDescription="{settings['projects_meta_description']}" ogImg="{settings['projects_og']}" availableLocales={data.availableLocales} />
+        {:else if activeProject}
+            <Seo
+                title="{activeProject.title + ' | Armin Salihović'}"
+                metaDescription={activeProject.description}
+                ogImg={activeProject.image}
+                availableLocales={activeProject.availableLocales}
+                pathname={localizedPath(`/projects/${encodeURIComponent(activeProjectSlug)}`, locale)}
+            />
+        {/if}
         <PageHeader title={translate(locale, 'nav.projects')} />
         <article class="projects-list leading-normal grid grid-cols-1 lg:grid-cols-2 gap-10 3xl:gap-12 4xl:gap-20 pb-10 3xl:pb-12 4xl:pb-20">
             {#each data['data'] as project}

@@ -52,7 +52,7 @@
 
 <MainLayout>
     <div>
-        <Seo title="{settings['home_meta_title']}" metaDescription="{settings['home_meta_description']}" ogImg="{settings['home_og']}" />
+        <Seo title="{settings['home_meta_title']}" metaDescription="{settings['home_meta_description']}" ogImg="{settings['home_og']}" availableLocales={data.availableLocales} />
         <div class="pt-6 px-6 sm:px-12 3xl:px-16 4xl:px-24">
             <PageHeader title={translate(locale, 'home.greeting')} />
         </div>

@@ -12,7 +12,7 @@
 </script>
 
 <MainLayout>
-    <Seo title="{data.data.title + ' | Armin Salihović'}" metaDescription="{data.data.description}" ogImg="{data.data.image}" />
+    <Seo title="{data.data.title + ' | Armin Salihović'}" metaDescription="{data.data.description}" ogImg="{data.data.image}" availableLocales={data.availableLocales} />
     <a class="block px-6 pt-6 sm:px-12 link-underline" href={localizedPath('/projects', locale)}>{translate(locale, 'project.back')}</a>
     <article class="article-content">
         {@html data.data.content}
