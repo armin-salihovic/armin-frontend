@@ -1,8 +1,5 @@
-import { localizedApiJson } from '../../../../lib/api.js';
+import { loadLocalizedProject } from '../../../../lib/api.js';
 
-export async function load({ params, fetch }) {
-    return {
-        ...(await localizedApiJson(fetch, `/projects/${encodeURIComponent(params.slug)}`, 'de')),
-        locale: 'de'
-    };
+export async function load(event) {
+    return loadLocalizedProject(event);
 }

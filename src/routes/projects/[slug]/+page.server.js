@@ -1,10 +1,5 @@
-import { localizedApiJson } from '../../../lib/api.js';
-import { localeFromPath } from '../../../lib/locale.js';
+import { loadLocalizedProject } from '../../../lib/api.js';
 
-export async function load({ params, fetch, url }) {
-    const locale = localeFromPath(url.pathname);
-    return {
-        ...(await localizedApiJson(fetch, `/projects/${encodeURIComponent(params.slug)}`, locale)),
-        locale
-    };
+export async function load(event) {
+    return loadLocalizedProject(event);
 }

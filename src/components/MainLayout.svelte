@@ -9,10 +9,9 @@
     import ThemeToggle from "./ThemeToggle.svelte";
     import LanguageSwitcher from './LanguageSwitcher.svelte';
     import {translate} from "../lib/i18n.js";
-    import {localizedPath} from "../lib/locale.js";
+    import {localizedPath, localeFromPath} from "../lib/locale.js";
     import {panelOpen} from "../store.js";
 
-    let panelBackground1;
     let panelBackground2;
     let panelCloseButton;
     let panelContainer;
@@ -22,7 +21,7 @@
     const {closePanel} = usePanel();
 
     function handlePanelClick(event) {
-        if(event.target === panelBackground1 || event.target === panelBackground2) {
+        if(event.target === panelContainer || event.target === panelBackground2) {
             window.history.back();
             closePanel(translate(locale, 'nav.projects'));
         }
@@ -62,7 +61,7 @@
         }
     }
 
-    $: locale = $page.data.locale || 'en';
+    $: locale = $page.data.locale || localeFromPath($page.url.pathname);
     $: settings = $page.data.settings || {};
     $: links = [
         {key: 'nav.projects', route: '/projects'},
@@ -137,7 +136,7 @@
             </div>
         </div>
     </div>
-    <div class="panel__container overflow-hidden" bind:this={panelBackground1} on:click={handlePanelClick} role={$panelOpen ? 'dialog' : undefined} aria-modal={$panelOpen ? 'true' : undefined} aria-labelledby="project-panel-title" aria-hidden={!$panelOpen} inert={!$panelOpen ? '' : undefined} tabindex="-1">
+    <div class="panel__container overflow-hidden" bind:this={panelContainer} on:click={handlePanelClick} role={$panelOpen ? 'dialog' : undefined} aria-modal={$panelOpen ? 'true' : undefined} aria-labelledby="project-panel-title" aria-hidden={!$panelOpen} inert={!$panelOpen ? '' : undefined} tabindex="-1">
         <div class="panel cursor-pointer absolute top-0 right-0 max-w-screen-panel z-50 xl:pl-32 2xl:pl-56 3xl:pl-72 4xl:pl-[28rem] lg:pl-0" bind:this={panelBackground2}>
             <header class="flex justify-between py-6 3xl:py-8 4xl:py-12 px-6 sm:px-10 3xl:px-12 4xl:px-20 fixed top-0 bg-white dark:bg-[#181a1b] dark:text-[#dddad6] leading-none text-xl 3xl:text-3xl 4xl:text-4xl cursor-default z-20 transition-colors duration-300">
                 <h2 id="project-panel-title" class="truncate max-w-[calc(100vw-10rem)]"><slot name="panel-title">{translate(locale, 'panel.article')}</slot></h2>

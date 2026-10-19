@@ -28,3 +28,11 @@ export async function loadLocalizedContent({ fetch, url }, endpoint) {
         locale
     };
 }
+
+export async function loadLocalizedProject({ params, fetch, url }) {
+    const locale = localeFromPath(url.pathname);
+    return {
+        ...(await localizedApiJson(fetch, `/projects/${encodeURIComponent(params.slug)}`, locale)),
+        locale
+    };
+}

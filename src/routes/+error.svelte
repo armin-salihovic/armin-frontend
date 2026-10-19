@@ -3,7 +3,8 @@ import MainLayout from "../components/MainLayout.svelte";
 import PageHeader from "../components/PageHeader.svelte";
 import { page } from '$app/stores';
     import {translate} from '../lib/i18n.js';
-    $: locale = $page.data.locale || 'en';
+    import {localeFromPath} from '../lib/locale.js';
+    $: locale = $page.data.locale || localeFromPath($page.url.pathname);
 </script>
 
 <svelte:head>
