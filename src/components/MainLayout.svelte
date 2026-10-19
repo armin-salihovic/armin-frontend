@@ -142,7 +142,6 @@
             <header class="flex justify-between py-6 3xl:py-8 4xl:py-12 px-6 sm:px-10 3xl:px-12 4xl:px-20 fixed top-0 bg-white dark:bg-[#181a1b] dark:text-[#dddad6] leading-none text-xl 3xl:text-3xl 4xl:text-4xl cursor-default z-20 transition-colors duration-300">
                 <h2 id="project-panel-title" class="truncate max-w-[calc(100vw-10rem)]"><slot name="panel-title">{translate(locale, 'panel.article')}</slot></h2>
                 <div class="panel-header-controls flex items-center gap-4 sm:gap-6 fixed top-6 right-6 sm:right-14 3xl:top-8 4xl:top-12">
-                    <LanguageSwitcher {locale} />
                     <button bind:this={panelCloseButton} type="button" class="cursor-pointer" on:click={handleClose} aria-label={translate(locale, 'panel.closeLabel')}>
                         <span class="relative hidden sm:block">{translate(locale, 'panel.close')}</span>
                         <img class="icon-cross dark:invert sm:h-2.5 3xl:h-4 4xl:h-5 h-3.5 block sm:absolute right-16 3xl:right-24 4xl:right-32 top-1/4" src="/img/icon-cross.svg" alt=""/>
