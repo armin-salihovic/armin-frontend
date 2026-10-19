@@ -26,6 +26,7 @@
     });
 
     async function switchTo(event, targetLocale) {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
         const path = typeof window === 'undefined' ? currentPath : window.location.pathname;
         await goto(localizedPath(path, targetLocale));

@@ -10,9 +10,14 @@
     import LanguageSwitcher from './LanguageSwitcher.svelte';
     import {translate} from "../lib/i18n.js";
     import {localizedPath} from "../lib/locale.js";
+    import {panelOpen} from "../store.js";
 
     let panelBackground1;
     let panelBackground2;
+    let panelCloseButton;
+    let panelContainer;
+    let previouslyFocusedElement;
+    let isPanelOpen = false;
 
     const {closePanel} = usePanel();
 
@@ -28,8 +33,33 @@
         closePanel(translate(locale, 'nav.projects'));
     }
 
-    function handlePanelKeydown(event) {
-        if (event.key === 'Escape') handleClose();
+    function handleGlobalKeydown(event) {
+        if (!isPanelOpen) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            handleClose();
+            return;
+        }
+        if (event.key !== 'Tab') return;
+
+        const focusableElements = panelContainer?.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusableElements?.length) {
+            event.preventDefault();
+            panelContainer?.focus();
+            return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        if (event.shiftKey && (document.activeElement === firstElement || !panelContainer.contains(document.activeElement))) {
+            event.preventDefault();
+            lastElement.focus();
+        } else if (!event.shiftKey && (document.activeElement === lastElement || !panelContainer.contains(document.activeElement))) {
+            event.preventDefault();
+            firstElement.focus();
+        }
     }
 
     $: locale = $page.data.locale || 'en';
@@ -42,6 +72,24 @@
 
     onMount(() => {
         initTheme();
+        const unsubscribe = panelOpen.subscribe((open) => {
+            isPanelOpen = open;
+            if (open) {
+                previouslyFocusedElement = document.activeElement;
+                requestAnimationFrame(() => panelCloseButton?.focus());
+            } else if (previouslyFocusedElement) {
+                const elementToRestore = previouslyFocusedElement;
+                previouslyFocusedElement = undefined;
+                requestAnimationFrame(() => {
+                    if (elementToRestore.isConnected) elementToRestore.focus();
+                });
+            }
+        });
+        window.addEventListener('keydown', handleGlobalKeydown);
+        return () => {
+            unsubscribe();
+            window.removeEventListener('keydown', handleGlobalKeydown);
+        };
     });
 </script>
 
@@ -89,13 +137,13 @@
             </div>
         </div>
     </div>
-    <div class="panel__container overflow-hidden" bind:this={panelBackground1} on:click={handlePanelClick} on:keydown={handlePanelKeydown}>
+    <div class="panel__container overflow-hidden" bind:this={panelBackground1} on:click={handlePanelClick} role={$panelOpen ? 'dialog' : undefined} aria-modal={$panelOpen ? 'true' : undefined} aria-labelledby="project-panel-title" aria-hidden={!$panelOpen} inert={!$panelOpen ? '' : undefined} tabindex="-1">
         <div class="panel cursor-pointer absolute top-0 right-0 max-w-screen-panel z-50 xl:pl-32 2xl:pl-56 3xl:pl-72 4xl:pl-[28rem] lg:pl-0" bind:this={panelBackground2}>
             <header class="flex justify-between py-6 3xl:py-8 4xl:py-12 px-6 sm:px-10 3xl:px-12 4xl:px-20 fixed top-0 bg-white dark:bg-[#181a1b] dark:text-[#dddad6] leading-none text-xl 3xl:text-3xl 4xl:text-4xl cursor-default z-20 transition-colors duration-300">
-                <h2 class="truncate max-w-[calc(100vw-10rem)]"><slot name="panel-title">{translate(locale, 'panel.article')}</slot></h2>
+                <h2 id="project-panel-title" class="truncate max-w-[calc(100vw-10rem)]"><slot name="panel-title">{translate(locale, 'panel.article')}</slot></h2>
                 <div class="panel-header-controls flex items-center gap-4 sm:gap-6 fixed top-6 right-6 sm:right-14 3xl:top-8 4xl:top-12">
                     <LanguageSwitcher {locale} />
-                    <button type="button" class="cursor-pointer" on:click={handleClose} aria-label={translate(locale, 'panel.closeLabel')}>
+                    <button bind:this={panelCloseButton} type="button" class="cursor-pointer" on:click={handleClose} aria-label={translate(locale, 'panel.closeLabel')}>
                         <span class="relative hidden sm:block">{translate(locale, 'panel.close')}</span>
                         <img class="icon-cross dark:invert sm:h-2.5 3xl:h-4 4xl:h-5 h-3.5 block sm:absolute right-16 3xl:right-24 4xl:right-32 top-1/4" src="/img/icon-cross.svg" alt=""/>
                     </button>
