@@ -22,12 +22,14 @@
 
     function handlePanelClick(event) {
         if(event.target === panelContainer || event.target === panelBackground2) {
+            window.dispatchEvent(new Event('app-project-panel-close'));
             window.history.back();
             closePanel(translate(locale, 'nav.projects'));
         }
     }
 
     function handleClose() {
+        window.dispatchEvent(new Event('app-project-panel-close'));
         window.history.back();
         closePanel(translate(locale, 'nav.projects'));
     }

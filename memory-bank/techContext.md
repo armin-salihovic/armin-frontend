@@ -28,8 +28,9 @@ Available scripts:
 - `npm run dev` → `vite dev`
 - `npm run build` → `vite build`
 - `npm run preview` → `vite preview`
+- `npm test` → Node's built-in test runner (`node --test`)
 
-No lint, format, or test scripts are currently configured.
+No linting or separate check commands are currently configured.
 
 ## Environment
 

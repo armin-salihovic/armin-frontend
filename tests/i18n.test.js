@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { localeFromPath, localizedPath, projectAvailableInLocale } from '../src/lib/locale.js';
 import { localizedApiUrl } from '../src/lib/api-url.js';
 import { translate } from '../src/lib/i18n.js';
+import { isCurrentProjectRequest, loadSuccessfulProject, projectCacheKey, projectRequestError } from '../src/lib/project-panel.js';
 import { transformHtmlLang } from '../src/hooks.server.js';
 import { buildSitemapXml, canonicalUrl, createSitemapEntries, hasSitemapSourceFailure, isSitemapPayload, localizedAlternates } from '../src/lib/seo.js';
 
@@ -83,6 +84,65 @@ test('language switching does not offer an unpublished project translation', () 
     assert.equal(projectAvailableInLocale('/projects/english-only', projectSlugsByLocale, 'de'), false);
     assert.equal(projectAvailableInLocale('/de/projects/shared-project', projectSlugsByLocale, 'en'), true);
     assert.equal(projectAvailableInLocale('/projects', projectSlugsByLocale, 'de'), null);
+});
+
+test('project panel caches only successful data and retries failures', async () => {
+    const cache = new Map();
+    const key = projectCacheKey('en', '/projects/demo');
+    let attempts = 0;
+
+    const failed = await loadSuccessfulProject(cache, key, async () => {
+        attempts += 1;
+        throw Object.assign(new Error('Temporary backend failure'), {status: 503});
+    });
+    assert.deepEqual(failed, {ok: false, status: 503});
+    assert.equal(cache.has(key), false);
+
+    const project = {title: 'Demo', content: '<p>Demo</p>'};
+    const loaded = await loadSuccessfulProject(cache, key, async () => {
+        attempts += 1;
+        return project;
+    });
+    assert.deepEqual(loaded, {ok: true, project});
+    assert.equal(cache.get(key), project);
+
+    const cached = await loadSuccessfulProject(cache, key, async () => {
+        attempts += 1;
+        throw new Error('Cached project should not be loaded again');
+    });
+    assert.deepEqual(cached, {ok: true, project});
+    assert.equal(attempts, 2);
+    assert.notEqual(projectCacheKey('en', '/projects/demo'), projectCacheKey('de', '/projects/demo'));
+
+    const invalid = await loadSuccessfulProject(cache, projectCacheKey('en', '/projects/empty'), async () => ({}));
+    assert.deepEqual(invalid, {ok: false, status: 502});
+    assert.equal(cache.has(projectCacheKey('en', '/projects/empty')), false);
+});
+
+test('project panel distinguishes 404 from transient failures with localized messages', () => {
+    assert.deepEqual(projectRequestError('en', 404), {
+        title: 'Page not found',
+        message: "Sorry, the page you're looking for is unavailable."
+    });
+    assert.deepEqual(projectRequestError('de', 503), {
+        title: 'Dieses Projekt ist derzeit nicht verfügbar.',
+        message: 'Etwas ist schiefgelaufen. Bitte versuche es später erneut.'
+    });
+});
+
+test('project panel request guard rejects stale IDs, paths, and locales', () => {
+    const currentRequest = {
+        requestId: 7,
+        activeRequestId: 7,
+        requestedPath: '/de/projects/demo',
+        currentPath: '/de/projects/demo',
+        requestedLocale: 'de',
+        currentLocale: 'de'
+    };
+    assert.equal(isCurrentProjectRequest(currentRequest), true);
+    assert.equal(isCurrentProjectRequest({...currentRequest, activeRequestId: 8}), false);
+    assert.equal(isCurrentProjectRequest({...currentRequest, currentPath: '/de/projects/other'}), false);
+    assert.equal(isCurrentProjectRequest({...currentRequest, currentLocale: 'en'}), false);
 });
 
 test('sitemap includes published project locales and reciprocal alternates without /en URLs', () => {

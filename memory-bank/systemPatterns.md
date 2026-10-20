@@ -71,7 +71,9 @@ Global settings, panel state, and theme state are consumed across routes/compone
   - Resets `panelOpen` to `false`.
   - Restores document title to `Projects | Armin Salihović`.
 
-The projects route uses SvelteKit navigation hooks and browser history to intercept navigation to project detail routes and show details in the panel.
+The projects route intentionally uses `history.pushState` for project clicks from the list, without SvelteKit route navigation. `popstate` restores or closes the panel; normal close controls go back in browser history. Direct requests and reloads of `/projects/:slug` and `/de/projects/:slug` use the standalone SvelteKit detail routes.
+
+Project panel data is cached per locale and API path only after a valid successful response. Failures are not cached: HTTP 404 gets localized not-found text and other failures get localized generic error text. Request ID, locale, and `window.location.pathname` checks prevent stale results from opening. Panel-close actions invalidate pending requests before calling `history.back()`.
 
 ## API Integration Pattern
 

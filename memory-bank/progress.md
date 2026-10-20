@@ -17,8 +17,8 @@
 ## What Is Left / Unknown
 
 - README still needs project-specific documentation if desired.
-- No automated tests are currently configured.
-- No linting/formatting commands are currently configured.
+- A Node built-in test suite is available through `npm test`.
+- No linting or separate check commands are currently configured.
 - Backend API schema is inferred from frontend usage but not documented in this repository.
 - Deployment target is not documented; `adapter-auto` is currently used.
 - `.env.example` should be checked/updated when documenting local setup more thoroughly.
@@ -32,7 +32,7 @@
 
 ## Current Status
 
-Dark mode implementation completed on 2026-07-22. The top nav now uses `ThemeToggle.svelte`, an accessible icon-only sun/moon pill-style light/dark switch aligned to the far right and absolutely positioned so it does not shift Projects/About/Contact. The sun icon contrast was improved for dark mode. Fixed an issue where backgrounds stayed white by replacing unsupported Tailwind 3.1 `neutral-950` classes with explicit palette colors and global dark background fallbacks. Current palette: main text/lines `#dddad6`, muted gray `#9e9589`, main background `#181a1b`, body/right-sidebar `#111111`. Fixed the projects page header logo becoming invisible when a project detail panel is open by keeping the panel-open logo wrapper inverted in `src/components/PageHeader.svelte`; this is required because `.html-panel .content` darkens the underlying projects page/header in both light and dark mode. `npm.cmd run build` succeeds; `npm run build` directly in PowerShell is blocked by local script execution policy for `npm.ps1`.
+Final frontend hardening completed on 2026-10-20. Project-panel caching stores only valid successful project data; 404 and transient failures render localized panel messages and can retry. Loading, error, close, locale, and history changes are guarded so late requests cannot open the wrong panel. Live backend checks found German home/about are unpublished (404), and 3 of 5 projects have German translations. The frontend sitemap emitted 14 published URLs. `npm test` (14 tests) and `npm run build` pass.
 
 ## Recommended Next Steps
 

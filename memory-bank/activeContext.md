@@ -2,7 +2,7 @@
 
 ## Current Work Focus
 
-Dark mode has been implemented for the existing `armin-frontend` SvelteKit project.
+Final frontend hardening for English/German localization, especially the custom project panel. The panel intentionally uses History API URL changes from the projects list, while direct project URLs continue to render the standalone SvelteKit detail route.
 
 ## Recent Findings
 
@@ -15,6 +15,10 @@ Dark mode has been implemented for the existing `armin-frontend` SvelteKit proje
 - Dark mode now uses Tailwind's class strategy with the `dark` class applied to `<html>`.
 - Theme preference is initialized early in `src/app.html` to reduce flash of incorrect theme, then synchronized through `src/theme.js` and the `theme` store.
 - Tailwind CSS is `^3.1.8`; avoid newer palette shades such as `neutral-950` because they are not generated in this version.
+- Project-panel data is cached per locale only after a valid successful API response. Errors remain retryable and distinguish HTTP 404 from other failures.
+- Panel requests are guarded by request ID, locale, and current path. Close actions invalidate pending requests before history changes complete.
+- The live backend currently publishes 3 of 5 English projects in German; German home and about pages currently return 404 and are omitted from the sitemap.
+- `npm test` runs Node's built-in test runner; no lint or check scripts are configured.
 
 ## Important Current Patterns
 
@@ -52,7 +56,7 @@ Dark mode has been implemented for the existing `armin-frontend` SvelteKit proje
 ## Known Issues / Areas to Watch
 
 - `README.md` is still the default create-svelte README.
-- No lint, format, or test scripts are defined in `package.json`.
+- No lint or check scripts are defined in `package.json`.
 - `src/routes/contact/+page.server.js` is empty.
 - Error handling around API requests is minimal in several route load functions.
 - Contact form `catch` block assumes error shape that may not be produced by `fetch` unless errors are explicitly thrown.

@@ -3,7 +3,6 @@
     import MainLayout from "../../components/MainLayout.svelte";
     import {afterUpdate, onDestroy, onMount} from "svelte";
     import {page} from "$app/stores";
-    import {goto} from "$app/navigation";
     import {usePanel} from "../../panel.js";
     import {panelData, panelOpen} from "../../store.js";
     import Seo from "../../components/Seo.svelte";
@@ -12,6 +11,7 @@
     import {localizedApiJson, localizedAvailability} from '../../lib/api.js';
     import {localizedPath} from '../../lib/locale.js';
     import {translate} from '../../lib/i18n.js';
+    import {isCurrentProjectRequest, loadSuccessfulProject, projectCacheKey, projectRequestError} from '../../lib/project-panel.js';
 
     /** @type {import('./$types').PageData} */
     export let data;
@@ -23,6 +23,8 @@
     const projectCache = new Map();
     let activeProjectSlug = null;
     let activeProject = null;
+    let activeProjectError = null;
+    let activeProjectLoading = false;
     let activeProjectRequest = 0;
     let previousLocale;
 
@@ -30,80 +32,119 @@
         activeProjectRequest += 1;
         activeProjectSlug = null;
         activeProject = null;
+        activeProjectError = null;
+        activeProjectLoading = false;
         closePanel(translate(locale, 'nav.projects'));
     }
     $: previousLocale = locale;
 
-    async function getProject(path) {
-        const cacheKey = `${locale}:${path}`;
-        if (projectCache.has(cacheKey)) return projectCache.get(cacheKey);
-        try {
-            const response = await localizedApiJson(fetch, path, locale);
-            const availableLocales = await localizedAvailability(fetch, path, locale);
-            const project = {...response.data, availableLocales, available: true};
-            projectCache.set(cacheKey, project);
-            return project;
-        } catch {
-            const unavailable = {
-                title: translate(locale, 'project.unavailable'),
-                content: `<p>${translate(locale, 'project.unavailable')}</p>`,
-                available: false
-            };
-            projectCache.set(cacheKey, unavailable);
-            return unavailable;
-        }
+    async function getProject(path, requestLocale) {
+        return loadSuccessfulProject(projectCache, projectCacheKey(requestLocale, path), async () => {
+            const response = await localizedApiJson(fetch, path, requestLocale);
+            const availableLocales = await localizedAvailability(fetch, path, requestLocale);
+            return {...response.data, availableLocales};
+        });
     }
 
-    async function showProject(path) {
+    async function showProject(path, requestLocale = locale) {
         const requestId = ++activeProjectRequest;
-        const requestedPath = localizedPath(`/projects/${encodeURIComponent(path)}`, locale);
-        const project = await getProject(`/projects/${encodeURIComponent(path)}`);
-        if (requestId !== activeProjectRequest || window.location.pathname !== requestedPath) return;
-        if (!project.available) {
-            await goto(requestedPath);
+        const requestedPath = localizedPath(`/projects/${encodeURIComponent(path)}`, requestLocale);
+        const projectPath = `/projects/${encodeURIComponent(path)}`;
+
+        activeProjectSlug = path;
+        activeProject = null;
+        activeProjectError = null;
+        activeProjectLoading = true;
+        panelData.set({title: translate(requestLocale, 'project.loading'), content: ''});
+        openPanel();
+
+        const result = await getProject(projectPath, requestLocale);
+        if (!isCurrentProjectRequest({
+            requestId,
+            activeRequestId: activeProjectRequest,
+            requestedPath,
+            currentPath: window.location.pathname,
+            requestedLocale: requestLocale,
+            currentLocale: locale
+        })) return;
+
+        activeProjectLoading = false;
+        if (!result.ok) {
+            activeProjectError = projectRequestError(requestLocale, result.status);
+            panelData.set({title: activeProjectError.title, content: ''});
+            openPanel();
             return;
         }
-        activeProjectSlug = path;
-        activeProject = project;
-        panelData.set(project);
+
+        activeProject = result.project;
+        panelData.set(result.project);
         openPanel();
     }
 
     async function openProject(event, slug) {
         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
-        const nextPath = localizedPath(`/projects/${encodeURIComponent(slug)}`, locale);
+        const requestLocale = locale;
+        const nextPath = localizedPath(`/projects/${encodeURIComponent(slug)}`, requestLocale);
         if (window.location.pathname !== nextPath) {
             window.history.pushState(window.history.state, '', nextPath);
             window.dispatchEvent(new Event('app-path-change'));
         }
-        await showProject(slug);
+        await showProject(slug, requestLocale);
     }
 
     async function syncHistory() {
         const listPath = localizedPath('/projects', locale);
         const pathname = window.location.pathname;
         if (pathname.startsWith(`${listPath}/`)) {
-            const slug = decodeURIComponent(pathname.slice(listPath.length + 1));
-            if (slug && !slug.includes('/')) await showProject(slug);
+            let slug;
+            try {
+                slug = decodeURIComponent(pathname.slice(listPath.length + 1));
+            } catch {
+                slug = null;
+            }
+            if (slug && !slug.includes('/')) {
+                await showProject(slug, locale);
+            } else {
+                resetPanelForList();
+            }
         } else if (pathname === listPath || pathname === `${listPath}/`) {
-            activeProjectRequest += 1;
-            activeProjectSlug = null;
-            activeProject = null;
-            closePanel(translate(locale, 'nav.projects'));
+            resetPanelForList();
+        } else {
+            resetPanelForList();
         }
+    }
+
+    function resetPanelForList() {
+        activeProjectRequest += 1;
+        activeProjectSlug = null;
+        activeProject = null;
+        activeProjectError = null;
+        activeProjectLoading = false;
+        closePanel(translate(locale, 'nav.projects'));
+    }
+
+    function cancelCurrentProjectRequest() {
+        activeProjectRequest += 1;
     }
 
     onMount(() => {
         document.body.classList.add('relative');
         window.addEventListener('popstate', syncHistory);
+        window.addEventListener('app-project-panel-close', cancelCurrentProjectRequest);
         if (window.location.pathname.startsWith(`${localizedPath('/projects', locale)}/`)) {
             syncHistory();
         }
-        return () => window.removeEventListener('popstate', syncHistory);
+        return () => {
+            window.removeEventListener('popstate', syncHistory);
+            window.removeEventListener('app-project-panel-close', cancelCurrentProjectRequest);
+        };
     });
 
-    onDestroy(() => closePanel(translate(locale, 'nav.projects')));
+    onDestroy(() => {
+        activeProjectRequest += 1;
+        closePanel(translate(locale, 'nav.projects'));
+    });
 
     afterUpdate(() => {
         if ($panelOpen) {
@@ -121,6 +162,22 @@
                 metaDescription={activeProject.description}
                 ogImg={activeProject.image}
                 availableLocales={activeProject.availableLocales}
+                pathname={localizedPath(`/projects/${encodeURIComponent(activeProjectSlug)}`, locale)}
+            />
+        {:else if activeProjectError}
+            <Seo
+                title="{activeProjectError.title} | Armin Salihović"
+                metaDescription={activeProjectError.message}
+                ogImg={settings['projects_og']}
+                availableLocales={[locale]}
+                pathname={localizedPath(`/projects/${encodeURIComponent(activeProjectSlug)}`, locale)}
+            />
+        {:else if activeProjectSlug}
+            <Seo
+                title="{translate(locale, 'project.loading')} | Armin Salihović"
+                metaDescription={translate(locale, 'project.loading')}
+                ogImg={settings['projects_og']}
+                availableLocales={[locale]}
                 pathname={localizedPath(`/projects/${encodeURIComponent(activeProjectSlug)}`, locale)}
             />
         {/if}
@@ -161,6 +218,12 @@
     </div>
     <span slot="panel-title">{$panelData.title}</span>
     <article class="article-content" slot="panel">
-        {@html $panelData.content}
+        {#if activeProjectLoading}
+            <p role="status" aria-live="polite">{translate(locale, 'project.loading')}</p>
+        {:else if activeProjectError}
+            <p role="status" aria-live="polite">{activeProjectError.message}</p>
+        {:else}
+            {@html $panelData.content}
+        {/if}
     </article>
 </MainLayout>
