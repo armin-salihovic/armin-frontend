@@ -155,7 +155,7 @@
                 <div class="panel-header-controls flex items-center gap-4 sm:gap-6 fixed top-6 right-6 sm:right-14 3xl:top-8 4xl:top-12">
                     <button bind:this={panelCloseButton} type="button" class="cursor-pointer" on:click={handleClose} aria-label={translate(locale, 'panel.closeLabel')}>
                         <span class="relative hidden sm:block">{translate(locale, 'panel.close')}</span>
-                        <img class="icon-cross dark:invert sm:h-2.5 3xl:h-4 4xl:h-5 h-3.5 block sm:absolute right-16 3xl:right-24 4xl:right-32 top-1/4" src="/img/icon-cross.svg" alt=""/>
+                        <img class="icon-cross dark:invert sm:h-2.5 3xl:h-4 4xl:h-5 h-3.5 block sm:absolute {locale === 'de' ? 'right-24 3xl:right-36 4xl:right-44' : 'right-16 3xl:right-24 4xl:right-32'} top-1/4" src="/img/icon-cross.svg" alt=""/>
                     </button>
                 </div>
             </header>
