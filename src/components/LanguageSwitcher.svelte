@@ -16,6 +16,15 @@
         currentPath = lastPagePath;
     }
 
+    $: englishProjectAvailability = projectAvailableInLocale(currentPath, projectSlugsByLocale, 'en');
+    $: germanProjectAvailability = projectAvailableInLocale(currentPath, projectSlugsByLocale, 'de');
+    $: canSwitchToEnglish = englishProjectAvailability !== null
+        ? englishProjectAvailability
+        : availableLocales.includes('en');
+    $: canSwitchToGerman = germanProjectAvailability !== null
+        ? germanProjectAvailability
+        : availableLocales.includes('de');
+
     onMount(() => {
         const updatePath = () => currentPath = window.location.pathname;
         updatePath();
@@ -27,15 +36,9 @@
         };
     });
 
-    function canSwitchTo(targetLocale) {
-        const projectAvailable = projectAvailableInLocale(currentPath, projectSlugsByLocale, targetLocale);
-        if (projectAvailable !== null) return projectAvailable;
-        return availableLocales.includes(targetLocale);
-    }
-
     async function switchTo(event, targetLocale) {
         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        if (!canSwitchTo(targetLocale)) return;
+        if (targetLocale === 'en' ? !canSwitchToEnglish : !canSwitchToGerman) return;
         event.preventDefault();
         const path = typeof window === 'undefined' ? currentPath : window.location.pathname;
         await goto(localizedPath(path, targetLocale));
@@ -43,13 +46,13 @@
 </script>
 
 <nav class="language-switcher flex gap-2 text-sm sm:text-base" aria-label={translate(locale, 'nav.language')}>
-    {#if canSwitchTo('en')}
+    {#if canSwitchToEnglish}
         <a href={localizedPath(currentPath, 'en')} aria-current={locale === 'en' ? 'page' : undefined} on:click={(event) => switchTo(event, 'en')}>EN</a>
     {:else}
         <span aria-disabled="true">EN</span>
     {/if}
     <span aria-hidden="true">/</span>
-    {#if canSwitchTo('de')}
+    {#if canSwitchToGerman}
         <a href={localizedPath(currentPath, 'de')} aria-current={locale === 'de' ? 'page' : undefined} on:click={(event) => switchTo(event, 'de')}>DE</a>
     {:else}
         <span aria-disabled="true">DE</span>

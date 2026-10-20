@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { localeFromPath, localizedPath, projectAvailableInLocale } from '../src/lib/locale.js';
 import { localizedApiUrl } from '../src/lib/api-url.js';
 import { translate } from '../src/lib/i18n.js';
-import { isCurrentProjectRequest, loadSuccessfulProject, projectCacheKey, projectRequestError } from '../src/lib/project-panel.js';
+import { canRetryProjectRequest, isCurrentProjectRequest, loadProjectWithAvailability, loadSuccessfulProject, openProjectPanelAfterLoad, projectCacheKey, projectLocalesFromAvailabilityResponse, projectRequestError, projectSlugsForPanel } from '../src/lib/project-panel.js';
 import { transformHtmlLang } from '../src/hooks.server.js';
 import { buildSitemapXml, canonicalUrl, createSitemapEntries, hasSitemapSourceFailure, isSitemapPayload, localizedAlternates } from '../src/lib/seo.js';
 
@@ -86,6 +86,14 @@ test('language switching does not offer an unpublished project translation', () 
     assert.equal(projectAvailableInLocale('/projects', projectSlugsByLocale, 'de'), null);
 });
 
+test('panel language switching follows project detail availability', () => {
+    const unpublished = projectSlugsForPanel('en', 'mimo-website', ['en']);
+    const translated = projectSlugsForPanel('de', 'multi-effects-guitar-pedal', ['de', 'en']);
+
+    assert.equal(projectAvailableInLocale('/projects/mimo-website', unpublished, 'de'), false);
+    assert.equal(projectAvailableInLocale('/de/projects/multi-effects-guitar-pedal', translated, 'en'), true);
+});
+
 test('project panel caches only successful data and retries failures', async () => {
     const cache = new Map();
     const key = projectCacheKey('en', '/projects/demo');
@@ -119,6 +127,91 @@ test('project panel caches only successful data and retries failures', async () 
     assert.equal(cache.has(projectCacheKey('en', '/projects/empty')), false);
 });
 
+test('project article can open before counterpart locale availability resolves', async () => {
+    const cache = new Map();
+    const project = {title: 'Demo', content: '<div class="blur-div"><img src="/demo.jpg"></div>'};
+    let resolveAvailability;
+    const counterpartRequest = new Promise((resolve) => {
+        resolveAvailability = resolve;
+    });
+
+    const result = await loadProjectWithAvailability({
+        cache,
+        key: projectCacheKey('en', '/projects/demo'),
+        loadProject: async () => project,
+        loadAvailability: () => counterpartRequest
+    });
+
+    assert.equal(result.ok, true);
+    assert.equal(result.project.content, project.content);
+
+    resolveAvailability(['en', 'de']);
+    assert.deepEqual(await result.availability, ['en', 'de']);
+});
+
+test('counterpart availability distinguishes a missing translation from an unknown result', () => {
+    assert.deepEqual(projectLocalesFromAvailabilityResponse('en', {status: 404}), ['en']);
+    assert.deepEqual(projectLocalesFromAvailabilityResponse('de', {
+        status: 200,
+        ok: true,
+        payload: {data: {title: 'Demo', content: '<p>Demo</p>'}}
+    }), ['de', 'en']);
+    assert.equal(projectLocalesFromAvailabilityResponse('en', {status: 503, ok: false}), null);
+    assert.equal(projectLocalesFromAvailabilityResponse('en', {status: 0, ok: false}), null);
+    assert.equal(projectLocalesFromAvailabilityResponse('en', {status: 200, ok: true, redirected: true}), null);
+    assert.equal(projectLocalesFromAvailabilityResponse('en', {status: 200, ok: true, payload: {data: {}}}), null);
+});
+
+test('project panel waits for valid article content before changing history or opening', async () => {
+    const steps = [];
+    let resolveProject;
+    const projectLoad = new Promise((resolve) => {
+        resolveProject = resolve;
+    });
+    const opening = openProjectPanelAfterLoad({
+        loadProject: () => projectLoad,
+        isCurrent: () => true,
+        updateHistory: () => steps.push('history'),
+        onError: () => steps.push('error'),
+        onProject: (project) => steps.push(`project:${project.content}`),
+        openPanel: () => steps.push('open')
+    });
+
+    await Promise.resolve();
+    assert.deepEqual(steps, []);
+
+    resolveProject({ok: true, project: {title: 'Demo', content: '<p>Ready with LQIP markup</p>'}});
+    assert.deepEqual(await opening, {ok: true, project: {title: 'Demo', content: '<p>Ready with LQIP markup</p>'}});
+    assert.deepEqual(steps, ['history', 'project:<p>Ready with LQIP markup</p>', 'open']);
+});
+
+test('failed and stale project loads do not add history entries', async () => {
+    const steps = [];
+    const failed = await openProjectPanelAfterLoad({
+        loadProject: async () => ({ok: false, status: 503}),
+        isCurrent: () => true,
+        updateHistory: () => steps.push('history'),
+        onError: () => steps.push('error'),
+        onProject: () => steps.push('project'),
+        openPanel: () => steps.push('open')
+    });
+
+    assert.deepEqual(failed, {ok: false, status: 503});
+    assert.deepEqual(steps, ['error', 'open']);
+
+    const stale = await openProjectPanelAfterLoad({
+        loadProject: async () => ({ok: true, project: {title: 'Demo', content: '<p>Demo</p>'}}),
+        isCurrent: () => false,
+        updateHistory: () => steps.push('stale-history'),
+        onError: () => steps.push('stale-error'),
+        onProject: () => steps.push('stale-project'),
+        openPanel: () => steps.push('stale-open')
+    });
+
+    assert.deepEqual(stale, {ok: false, stale: true});
+    assert.deepEqual(steps, ['error', 'open']);
+});
+
 test('project panel distinguishes 404 from transient failures with localized messages', () => {
     assert.deepEqual(projectRequestError('en', 404), {
         title: 'Page not found',
@@ -128,6 +221,9 @@ test('project panel distinguishes 404 from transient failures with localized mes
         title: 'Dieses Projekt ist derzeit nicht verfügbar.',
         message: 'Etwas ist schiefgelaufen. Bitte versuche es später erneut.'
     });
+    assert.equal(canRetryProjectRequest(404), false);
+    assert.equal(canRetryProjectRequest(503), true);
+    assert.equal(canRetryProjectRequest(0), true);
 });
 
 test('project panel request guard rejects stale IDs, paths, and locales', () => {
@@ -143,6 +239,8 @@ test('project panel request guard rejects stale IDs, paths, and locales', () => 
     assert.equal(isCurrentProjectRequest({...currentRequest, activeRequestId: 8}), false);
     assert.equal(isCurrentProjectRequest({...currentRequest, currentPath: '/de/projects/other'}), false);
     assert.equal(isCurrentProjectRequest({...currentRequest, currentLocale: 'en'}), false);
+    assert.equal(isCurrentProjectRequest({...currentRequest, activeRequestId: 8, currentPath: '/projects'}), false);
+    assert.equal(isCurrentProjectRequest({...currentRequest, currentPath: '/projects'}), false);
 });
 
 test('sitemap includes published project locales and reciprocal alternates without /en URLs', () => {

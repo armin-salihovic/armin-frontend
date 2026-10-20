@@ -17,6 +17,10 @@ Final frontend hardening for English/German localization, especially the custom 
 - Tailwind CSS is `^3.1.8`; avoid newer palette shades such as `neutral-950` because they are not generated in this version.
 - Project-panel data is cached per locale only after a valid successful API response. Errors remain retryable and distinguish HTTP 404 from other failures.
 - Panel requests are guarded by request ID, locale, and current path. Close actions invalidate pending requests before history changes complete.
+- Project panel clicks fetch the localized article before updating History API state or opening the panel. Counterpart-language availability runs independently and only adds an alternate after a successful lookup.
+- A project-level locale map overrides the projects-list slug map while a panel is open. `LanguageSwitcher.svelte` derives its enabled states reactively because Svelte does not track dependencies hidden inside helper calls in an `{#if}` expression.
+- Keep one `Seo` component instance on the projects page and update its props for list/panel state so project canonical and hreflang tags replace list metadata cleanly.
+- The existing `{@html ...}` article and `.blur-div` placeholders remain visible before full images load; `afterUpdate()` still starts the lazy loader when the panel opens.
 - The live backend currently publishes 3 of 5 English projects in German; German home and about pages currently return 404 and are omitted from the sitemap.
 - `npm test` runs Node's built-in test runner; no lint or check scripts are configured.
 

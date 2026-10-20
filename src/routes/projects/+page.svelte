@@ -11,74 +11,111 @@
     import {localizedApiJson, localizedAvailability} from '../../lib/api.js';
     import {localizedPath} from '../../lib/locale.js';
     import {translate} from '../../lib/i18n.js';
-    import {isCurrentProjectRequest, loadSuccessfulProject, projectCacheKey, projectRequestError} from '../../lib/project-panel.js';
+    import {canRetryProjectRequest, isCurrentProjectRequest, loadProjectWithAvailability, openProjectPanelAfterLoad, projectCacheKey, projectRequestError, projectSlugsForPanel} from '../../lib/project-panel.js';
 
     /** @type {import('./$types').PageData} */
     export let data;
 
-    $: locale = data.locale || $page.data.locale || 'en';
-    $: settings = $page.data.settings || {};
-    const {closePanel, openPanel} = usePanel();
-    const lazyLoading = useLazyLoading();
-    const projectCache = new Map();
     let activeProjectSlug = null;
     let activeProject = null;
     let activeProjectError = null;
-    let activeProjectLoading = false;
     let activeProjectRequest = 0;
     let previousLocale;
+
+    $: locale = data.locale || $page.data.locale || 'en';
+    $: settings = $page.data.settings || {};
+    $: panelProjectSlugsByLocale = activeProjectSlug
+        ? projectSlugsForPanel(locale, activeProjectSlug, activeProject?.availableLocales || [locale])
+        : null;
+    const {closePanel, openPanel} = usePanel();
+    const lazyLoading = useLazyLoading();
+    const projectCache = new Map();
+    const availabilityCache = new Map();
 
     $: if (previousLocale && previousLocale !== locale) {
         activeProjectRequest += 1;
         activeProjectSlug = null;
         activeProject = null;
         activeProjectError = null;
-        activeProjectLoading = false;
         closePanel(translate(locale, 'nav.projects'));
     }
     $: previousLocale = locale;
 
     async function getProject(path, requestLocale) {
-        return loadSuccessfulProject(projectCache, projectCacheKey(requestLocale, path), async () => {
-            const response = await localizedApiJson(fetch, path, requestLocale);
-            const availableLocales = await localizedAvailability(fetch, path, requestLocale);
-            return {...response.data, availableLocales};
+        const key = projectCacheKey(requestLocale, path);
+        return loadProjectWithAvailability({
+            cache: projectCache,
+            key,
+            loadProject: async () => {
+                const response = await localizedApiJson(fetch, path, requestLocale);
+                return response.data;
+            },
+            loadAvailability: async () => {
+                if (availabilityCache.has(key)) return availabilityCache.get(key);
+                const availableLocales = await localizedAvailability(fetch, path, requestLocale);
+                if (availableLocales?.length > 1) availabilityCache.set(key, availableLocales);
+                return availableLocales;
+            }
         });
     }
 
-    async function showProject(path, requestLocale = locale) {
+    async function showProject(path, requestLocale = locale, options = {}) {
         const requestId = ++activeProjectRequest;
         const requestedPath = localizedPath(`/projects/${encodeURIComponent(path)}`, requestLocale);
         const projectPath = `/projects/${encodeURIComponent(path)}`;
+        const expectedPath = options.expectedPath || window.location.pathname;
 
         activeProjectSlug = path;
         activeProject = null;
         activeProjectError = null;
-        activeProjectLoading = true;
-        panelData.set({title: translate(requestLocale, 'project.loading'), content: ''});
-        openPanel();
 
-        const result = await getProject(projectPath, requestLocale);
-        if (!isCurrentProjectRequest({
-            requestId,
-            activeRequestId: activeProjectRequest,
-            requestedPath,
-            currentPath: window.location.pathname,
-            requestedLocale: requestLocale,
-            currentLocale: locale
-        })) return;
+        const key = projectCacheKey(requestLocale, projectPath);
+        const result = await openProjectPanelAfterLoad({
+            loadProject: () => getProject(projectPath, requestLocale),
+            isCurrent: (stage) => isCurrentProjectRequest({
+                requestId,
+                activeRequestId: activeProjectRequest,
+                requestedPath: stage === 'before-history' ? expectedPath : requestedPath,
+                currentPath: window.location.pathname,
+                requestedLocale: requestLocale,
+                currentLocale: locale
+            }),
+            updateHistory: () => {
+                if (!options.pushHistory || window.location.pathname !== expectedPath) return;
+                window.history.pushState(window.history.state, '', requestedPath);
+                window.dispatchEvent(new Event('app-path-change'));
+            },
+            onError: (projectResult) => {
+                activeProjectError = {
+                    ...projectRequestError(requestLocale, projectResult.status),
+                    status: projectResult.status,
+                    retryable: canRetryProjectRequest(projectResult.status)
+                };
+                panelData.set({title: activeProjectError.title, content: ''});
+            },
+            onProject: (project) => {
+                activeProject = {
+                    ...project,
+                    availableLocales: availabilityCache.get(key) || [requestLocale]
+                };
+                panelData.set(activeProject);
+            },
+            openPanel
+        });
+        if (!result.ok) return;
 
-        activeProjectLoading = false;
-        if (!result.ok) {
-            activeProjectError = projectRequestError(requestLocale, result.status);
-            panelData.set({title: activeProjectError.title, content: ''});
-            openPanel();
-            return;
-        }
+        void result.availability?.then((availableLocales) => {
+            if (!availableLocales || !isCurrentProjectRequest({
+                requestId,
+                activeRequestId: activeProjectRequest,
+                requestedPath,
+                currentPath: window.location.pathname,
+                requestedLocale: requestLocale,
+                currentLocale: locale
+            }) || activeProjectSlug !== path || !activeProject) return;
 
-        activeProject = result.project;
-        panelData.set(result.project);
-        openPanel();
+            activeProject = {...activeProject, availableLocales};
+        });
     }
 
     async function openProject(event, slug) {
@@ -86,11 +123,10 @@
         event.preventDefault();
         const requestLocale = locale;
         const nextPath = localizedPath(`/projects/${encodeURIComponent(slug)}`, requestLocale);
-        if (window.location.pathname !== nextPath) {
-            window.history.pushState(window.history.state, '', nextPath);
-            window.dispatchEvent(new Event('app-path-change'));
-        }
-        await showProject(slug, requestLocale);
+        void showProject(slug, requestLocale, {
+            expectedPath: window.location.pathname,
+            pushHistory: window.location.pathname !== nextPath
+        });
     }
 
     async function syncHistory() {
@@ -104,7 +140,7 @@
                 slug = null;
             }
             if (slug && !slug.includes('/')) {
-                await showProject(slug, locale);
+                await showProject(slug, locale, {expectedPath: pathname});
             } else {
                 resetPanelForList();
             }
@@ -120,8 +156,20 @@
         activeProjectSlug = null;
         activeProject = null;
         activeProjectError = null;
-        activeProjectLoading = false;
         closePanel(translate(locale, 'nav.projects'));
+    }
+
+    function retryCurrentProject() {
+        if (!activeProjectSlug) return;
+        const slug = activeProjectSlug;
+        const currentPath = window.location.pathname;
+        const requestedPath = localizedPath(`/projects/${encodeURIComponent(slug)}`, locale);
+        window.dispatchEvent(new Event('app-project-panel-close'));
+        closePanel(translate(locale, 'nav.projects'));
+        void showProject(slug, locale, {
+            expectedPath: currentPath,
+            pushHistory: currentPath !== requestedPath
+        });
     }
 
     function cancelCurrentProjectRequest() {
@@ -152,35 +200,15 @@
         }
     })
 </script>
-<MainLayout>
+<MainLayout projectSlugsByLocaleOverride={panelProjectSlugsByLocale}>
     <div class="p-6 sm:px-12 3xl:px-16 4xl:px-24">
-        {#if !activeProjectSlug}
-            <Seo title="{settings['projects_meta_title']}" metaDescription="{settings['projects_meta_description']}" ogImg="{settings['projects_og']}" availableLocales={data.availableLocales} />
-        {:else if activeProject}
-            <Seo
-                title="{activeProject.title + ' | Armin Salihović'}"
-                metaDescription={activeProject.description}
-                ogImg={activeProject.image}
-                availableLocales={activeProject.availableLocales}
-                pathname={localizedPath(`/projects/${encodeURIComponent(activeProjectSlug)}`, locale)}
-            />
-        {:else if activeProjectError}
-            <Seo
-                title="{activeProjectError.title} | Armin Salihović"
-                metaDescription={activeProjectError.message}
-                ogImg={settings['projects_og']}
-                availableLocales={[locale]}
-                pathname={localizedPath(`/projects/${encodeURIComponent(activeProjectSlug)}`, locale)}
-            />
-        {:else if activeProjectSlug}
-            <Seo
-                title="{translate(locale, 'project.loading')} | Armin Salihović"
-                metaDescription={translate(locale, 'project.loading')}
-                ogImg={settings['projects_og']}
-                availableLocales={[locale]}
-                pathname={localizedPath(`/projects/${encodeURIComponent(activeProjectSlug)}`, locale)}
-            />
-        {/if}
+        <Seo
+            title={activeProject ? `${activeProject.title} | Armin Salihović` : settings['projects_meta_title']}
+            metaDescription={activeProject ? activeProject.description : settings['projects_meta_description']}
+            ogImg={activeProject ? activeProject.image : settings['projects_og']}
+            availableLocales={activeProject ? activeProject.availableLocales : data.availableLocales}
+            pathname={activeProject ? localizedPath(`/projects/${encodeURIComponent(activeProjectSlug)}`, locale) : undefined}
+        />
         <PageHeader title={translate(locale, 'nav.projects')} />
         <article class="projects-list leading-normal grid grid-cols-1 lg:grid-cols-2 gap-10 3xl:gap-12 4xl:gap-20 pb-10 3xl:pb-12 4xl:pb-20">
             {#each data['data'] as project}
@@ -218,10 +246,15 @@
     </div>
     <span slot="panel-title">{$panelData.title}</span>
     <article class="article-content" slot="panel">
-        {#if activeProjectLoading}
-            <p role="status" aria-live="polite">{translate(locale, 'project.loading')}</p>
-        {:else if activeProjectError}
-            <p role="status" aria-live="polite">{activeProjectError.message}</p>
+        {#if activeProjectError}
+            <div role="alert" aria-live="assertive">
+                <p>{activeProjectError.message}</p>
+                {#if activeProjectError.retryable}
+                    <button type="button" class="mt-4 underline underline-offset-4" on:click={retryCurrentProject}>
+                        {translate(locale, 'project.retry')}
+                    </button>
+                {/if}
+            </div>
         {:else}
             {@html $panelData.content}
         {/if}

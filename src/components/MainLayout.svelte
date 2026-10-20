@@ -18,19 +18,26 @@
     let previouslyFocusedElement;
     let isPanelOpen = false;
 
+    export let projectSlugsByLocaleOverride = null;
+
     const {closePanel} = usePanel();
 
     function handlePanelClick(event) {
         if(event.target === panelContainer || event.target === panelBackground2) {
-            window.dispatchEvent(new Event('app-project-panel-close'));
-            window.history.back();
-            closePanel(translate(locale, 'nav.projects'));
+            closeProjectPanel();
         }
     }
 
     function handleClose() {
+        closeProjectPanel();
+    }
+
+    function closeProjectPanel() {
         window.dispatchEvent(new Event('app-project-panel-close'));
-        window.history.back();
+        const projectsPath = localizedPath('/projects', locale);
+        if (window.location.pathname.startsWith(`${projectsPath}/`)) {
+            window.history.back();
+        }
         closePanel(translate(locale, 'nav.projects'));
     }
 
@@ -67,7 +74,7 @@
     $: settings = $page.data.settings || {};
     $: isContactRoute = $page.url.pathname === localizedPath('/contact', locale);
     $: availableLocales = $page.data.availableLocales || (isContactRoute ? ['en', 'de'] : [locale]);
-    $: projectSlugsByLocale = $page.data.projectSlugsByLocale || {};
+    $: projectSlugsByLocale = projectSlugsByLocaleOverride || $page.data.projectSlugsByLocale || {};
     $: links = [
         {key: 'nav.projects', route: '/projects'},
         {key: 'nav.about', route: '/about'},

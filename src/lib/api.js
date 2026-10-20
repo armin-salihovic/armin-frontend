@@ -3,6 +3,7 @@ import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { translate } from './i18n.js';
 import { localeFromPath } from './locale.js';
 import { localizedApiUrl } from './api-url.js';
+import { projectLocalesFromAvailabilityResponse } from './project-panel.js';
 
 export async function localizedApiFetch(fetchFn, endpoint, locale, options = {}) {
     return fetchFn(localizedApiUrl(PUBLIC_API_BASE_URL, endpoint, locale), options);
@@ -33,9 +34,18 @@ async function localizedCounterpart(fetchFn, endpoint, locale) {
 }
 
 export async function localizedAvailability(fetchFn, endpoint, locale) {
-    const otherLocale = locale === 'de' ? 'en' : 'de';
-    const counterpart = await localizedCounterpart(fetchFn, endpoint, locale);
-    return counterpart === null ? [locale] : [locale, otherLocale];
+    try {
+        const response = await localizedApiFetch(fetchFn, endpoint, locale === 'de' ? 'en' : 'de');
+        const payload = response.ok ? await response.json() : null;
+        return projectLocalesFromAvailabilityResponse(locale, {
+            status: response.status,
+            ok: response.ok,
+            redirected: response.redirected,
+            payload
+        });
+    } catch {
+        return null;
+    }
 }
 
 function projectSlugs(payload) {

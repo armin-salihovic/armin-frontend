@@ -32,7 +32,7 @@
 
 ## Current Status
 
-Final frontend hardening completed on 2026-10-20. Project-panel caching stores only valid successful project data; 404 and transient failures render localized panel messages and can retry. Loading, error, close, locale, and history changes are guarded so late requests cannot open the wrong panel. Live backend checks found German home/about are unpublished (404), and 3 of 5 projects have German translations. The frontend sitemap emitted 14 published URLs. `npm test` (14 tests) and `npm run build` pass.
+Task 05 restores the smooth project-panel opening path: article HTML is ready before the panel and custom history URL appear, while locale availability updates SEO and language controls independently. Successful content is cached per locale; failures are retryable where appropriate and never cached. Browser checks verified English/German panels and direct routes, back/forward, project-level canonical/hreflang updates, the disabled switch for an unpublished translation, and blurred placeholders transitioning to loaded images on desktop. The mobile viewport could not be controlled by the available browser surface. The suite has 16 passing tests and the production build passes.
 
 ## Recommended Next Steps
 
